@@ -4,6 +4,7 @@ namespace Wheniwork\Feedback\Domain;
 use Spark\Adr\DomainInterface;
 use Aura\Payload\Payload;
 use Predis\Client as RedisClient;
+use Wheniwork\Feedback\Service\GithubService;
 
 abstract class FeedbackDomain implements DomainInterface
 {
@@ -17,5 +18,10 @@ abstract class FeedbackDomain implements DomainInterface
     public function getPayload()
     {
         return new Payload();
+    }
+
+    protected function createIssue($body)
+    {
+        GithubService::createIssue('Feedback Item', $body);
     }
 }
