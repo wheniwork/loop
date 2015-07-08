@@ -1,0 +1,22 @@
+{
+    "name": "wheniwork/feedback",
+    "description": "A tool to gather and present customer feedback.",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "sparkphp/spark": "v0.1.4",
+        "predis/predis": "^1.1@dev",
+    },
+    "autoload": {
+        "psr-4": {
+            "Wheniwork\\Feedback\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ben Visness",
+            "email": "ben.visness@wheniwork.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
