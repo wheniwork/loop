@@ -13,7 +13,7 @@ $app->getRouter()->setDefaultResponder('Spark\Responder\JsonResponder');
 $app->addRoutes(function(Spark\Router $r) {
     $ns = 'Wheniwork\Feedback';
 
-    // Add routes here
+    $r->get('/twitter', "$ns\Domain\GetTwitter");
 });
 
 $app->run();
