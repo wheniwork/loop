@@ -20,7 +20,7 @@ abstract class FeedbackDomain implements DomainInterface
         return new Payload();
     }
 
-    protected function createIssue($body)
+    protected function createFeedback($body)
     {
         GithubService::createIssue('Feedback Item', $body);
     }
