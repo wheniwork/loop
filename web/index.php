@@ -14,6 +14,7 @@ $app->addRoutes(function(Spark\Router $r) {
     $ns = 'Wheniwork\Feedback';
 
     $r->get('/twitter', "$ns\Domain\GetTwitter");
+    $r->get('/facebook', "$ns\Domain\GetFacebook");
 });
 
 $app->run();
