@@ -12,12 +12,32 @@ class FacebookService
             'app_secret' => $_ENV['FB_APP_SECRET'],
             'default_graph_version' => 'v2.4',
         ]);
-        $fb->setDefaultAccessToken($_ENV['FB_TOKEN']);
         return $fb;
     }
 
-    private static function get($request) {
+    private static function getAppToken() {
+        if (empty($_ENV['FB_APP_TOKEN'])) {
+            $response = self::get('/oauth/access_token', [
+                'client_id' => $_ENV['FB_APP_ID'],
+                'client_secret' => $_ENV['FB_APP_SECRET'],
+                'grant_type' => 'client_credentials',
+            ], false);
+            $_ENV['FB_APP_TOKEN'] = $response['access_token'];
+        }
+
+        return $_ENV['FB_APP_TOKEN'];
+    }
+
+    private static function get($endpoint, $params = [], $needs_authentication = true) {
+        $request = $endpoint;
+        if (!empty($params)) {
+            $request .= '?' . http_build_query($params);
+        }
+
         $fb = self::getFacebook();
+        if ($needs_authentication) {
+            $fb->setDefaultAccessToken(self::getAppToken());
+        }
         $response = $fb->get($request);
         return $response->getDecodedBody();
     }
@@ -40,7 +60,9 @@ class FacebookService
      */
     public static function getReplyComments($after_time = 0)
     {
-        $results = self::get('/' . $_ENV['FB_PAGE_ID'] . '?fields=posts{comments{comments}}');
+        $results = self::get('/'.$_ENV['FB_PAGE_ID'], [
+            'fields' => 'posts{comments{comments}}',
+        ]);
 
         $replies = [];
         foreach ($results['posts']['data'] as $post) {
@@ -74,7 +96,9 @@ class FacebookService
      * @param int $comment_id The id of the comment whose parent should be retrieved.
      */
     public static function getCommentParent($comment_id) {
-        $results = self::get('/' . $comment_id . '?fields=parent');
+        $results = self::get('/'.$comment_id, [
+            'fields' => 'parent',
+        ]);
 
         if (empty($results['parent'])) {
             throw new RuntimeException("Comment $comment_id does not have a parent.");
