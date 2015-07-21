@@ -21,6 +21,11 @@ abstract class FeedbackDomain implements DomainInterface
         return new Payload();
     }
 
+    protected function isTaggedFeedback($content)
+    {
+        return stripos($content, '#feedback') !== FALSE;
+    }
+
     protected function createFeedback($body)
     {
         HipChatService::postMessage($body);

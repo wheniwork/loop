@@ -60,7 +60,7 @@ class GetFacebook extends FeedbackDomain
 
     private function isFeedbackComment($comment) {
         $from_wheniwork = $comment['from']['id'] == $_ENV['FB_PAGE_ID'];
-        $tagged_feedback = strpos($comment['message'], "#feedback") !== FALSE;
+        $tagged_feedback = $this->isTaggedFeedback($comment['message']);
         return $from_wheniwork && $tagged_feedback;
     }
 }

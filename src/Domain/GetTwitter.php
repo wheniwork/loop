@@ -26,7 +26,7 @@ class GetTwitter extends FeedbackDomain
             $output = ['new_tweets' => []];
             foreach ($tweets as $tweet) {
                 $is_reply = !empty($tweet->in_reply_to_status_id);
-                $tagged_feedback = strpos($tweet->text, '#feedback') !== FALSE;
+                $tagged_feedback = $this->isTaggedFeedback($tweet->text);
 
                 if ($is_reply && $tagged_feedback) {
                     $replied_tweet = $this->getTweet($tweet->in_reply_to_status_id);

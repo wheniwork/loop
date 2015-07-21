@@ -25,7 +25,7 @@ class GetBlog extends FeedbackDomain
             foreach ($comments as $comment) {
                 $is_reply = $comment['parent'] != "0";
                 $from_feedback_user = in_array($comment['user_id'], $this->getFeedbackUsers());
-                $tagged_feedback = strpos($comment['content'], '#feedback') !== FALSE;
+                $tagged_feedback = $this->isTaggedFeedback($comment['content']);
 
                 if ($is_reply && $from_feedback_user && $tagged_feedback) {
                     $parent_comment = BlogService::getComment($comment['parent']);
