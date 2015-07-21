@@ -16,6 +16,7 @@ $app->addRoutes(function(Spark\Router $r) {
     $r->get('/twitter', "$ns\Domain\GetTwitter");
     $r->get('/facebook', "$ns\Domain\GetFacebook");
     $r->get('/blog', "$ns\Domain\GetBlog");
+    $r->get('/satismeter', "$ns\Domain\GetSatismeter");
 
     $r->post('/post', "$ns\Domain\DoGeneric");
 });
