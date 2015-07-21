@@ -22,11 +22,6 @@ class GetTwitter extends FeedbackDomain
             $last_id = $this->getLastTweetID();
             $tweets = $this->getTweetsSince($last_id);
 
-            // Set the id of the latest tweet in Redis
-            if (count($tweets) > 0) {
-                $this->saveLastTweetID(reset($tweets)->id);
-            }
-
             // Process new feedback tweets
             $output = ['new_tweets' => []];
             foreach ($tweets as $tweet) {
@@ -39,6 +34,11 @@ class GetTwitter extends FeedbackDomain
                     $this->createFeedback($replied_tweet->text);
                     array_push($output['new_tweets'], $replied_tweet);
                 }
+            }
+
+            // Set the id of the latest tweet in Redis
+            if (count($tweets) > 0) {
+                $this->saveLastTweetID(reset($tweets)->id);
             }
 
             $payload->setStatus($payload::SUCCESS);
