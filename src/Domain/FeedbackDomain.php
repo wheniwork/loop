@@ -5,6 +5,7 @@ use Spark\Adr\DomainInterface;
 use Aura\Payload\Payload;
 use Predis\Client as RedisClient;
 use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\HipChatService;
 
 abstract class FeedbackDomain implements DomainInterface
 {
@@ -22,6 +23,7 @@ abstract class FeedbackDomain implements DomainInterface
 
     protected function createFeedback($body)
     {
+        HipChatService::postMessage($body);
         GithubService::createIssue('Feedback Item', $body);
     }
 }
