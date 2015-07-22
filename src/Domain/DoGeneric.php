@@ -10,6 +10,12 @@ class DoGeneric extends FeedbackDomain
         $payload = $this->getPayload();
 
         try {
+            if (empty($input['key'])) {
+                throw new RuntimeException("You must provide a key with your request.");
+            } else if ($input['key'] != $_ENV['GENERIC_KEY']) {
+                throw new RuntimeException("The provided authentication key was invalid.");
+            }
+
             if (empty($input['body'])) {
                 throw new RuntimeException("Missing required field 'body'");
             }
