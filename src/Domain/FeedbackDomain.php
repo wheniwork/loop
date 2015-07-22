@@ -26,9 +26,9 @@ abstract class FeedbackDomain implements DomainInterface
         return stripos($content, '#feedback') !== FALSE;
     }
 
-    protected function createFeedback($body)
+    protected function createFeedback($body, $source)
     {
-        HipChatService::postMessage($body);
+        HipChatService::postMessage("From $source: $body");
         GithubService::createIssue('Feedback Item', $body);
     }
 }

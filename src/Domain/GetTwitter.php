@@ -31,7 +31,7 @@ class GetTwitter extends FeedbackDomain
                 if ($is_reply && $tagged_feedback) {
                     $replied_tweet = $this->getTweet($tweet->in_reply_to_status_id);
 
-                    $this->createFeedback($replied_tweet->text);
+                    $this->createFeedback($replied_tweet->text, "Twitter");
                     array_push($output['new_tweets'], $replied_tweet);
                 }
             }

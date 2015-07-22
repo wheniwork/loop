@@ -25,7 +25,7 @@ class GetSatismeter extends FeedbackDomain
             $output = ['new_responses' => []];
             foreach ($responses as $response) {
                 if (!empty($response->feedback)) {
-                    $this->createFeedback($response->feedback);
+                    $this->createFeedback($response->feedback, "Satismeter");
                     array_push($output['new_responses'], $response);
                 }
             }

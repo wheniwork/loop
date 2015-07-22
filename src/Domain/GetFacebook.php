@@ -30,7 +30,7 @@ class GetFacebook extends FeedbackDomain
             foreach ($replies as $reply) {
                 if (strtotime($reply['created_time']) > $last_time) {
                     $parent = FacebookService::getCommentParent($reply['id']);
-                    $this->createFeedback($parent['message']);
+                    $this->createFeedback($parent['message'], "Facebook");
                     array_push($output['new_comments'], $parent);
                 }
             }
