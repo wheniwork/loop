@@ -7,8 +7,7 @@ class BlogService
 {
     private static function getClient()
     {
-        $wp = new WordpressClient();
-        $wp->setCredentials($_ENV['WP_ENDPOINT'], $_ENV['WP_USER'], $_ENV['WP_PASSWORD']);
+        $wp = new WordpressClient($_ENV['WP_ENDPOINT'], $_ENV['WP_USER'], $_ENV['WP_PASSWORD']);
         return $wp;
     }
 
