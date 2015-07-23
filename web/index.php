@@ -21,4 +21,6 @@ $app->addRoutes(function(Spark\Router $r) {
     $r->post('/post', "$ns\Domain\DoGeneric");
 });
 
+date_default_timezone_set('UTC');
+
 $app->run();
