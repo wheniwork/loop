@@ -23,7 +23,7 @@ class GetSatismeter extends FeedbackDomain
 
             // Set the time of the latest response in Redis
             if (count($responses) > 0) {
-                $this->saveLastResponseTime(strtotime(reset($responses)->created));
+                $this->saveLastResponseTime(strtotime(reset($responses)->created) + 1);
             }
 
             // Process new responses
