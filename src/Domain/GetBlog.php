@@ -20,6 +20,11 @@ class GetBlog extends FeedbackDomain
             // Get new comments since we last checked
             $comments = BlogService::getPublishedComments(50, $this->getLastCommentTime());
 
+            // Set the time of the latest comment in Redis
+            if (count($comments) > 0) {
+                $this->saveLastCommentTime(reset($comments)['date_created_gmt']->timestamp);
+            }
+
             // Process new comments
             $output = ['new_comments' => []];
             foreach ($comments as $comment) {
@@ -33,11 +38,6 @@ class GetBlog extends FeedbackDomain
                     $this->createFeedback($parent_comment['content'], "the blog");
                     array_push($output['new_comments'], $parent_comment);
                 }
-            }
-
-            // Set the time of the latest comment in Redis
-            if (count($comments) > 0) {
-                $this->saveLastCommentTime(reset($comments)['date_created_gmt']->timestamp);
             }
             
             $payload->setStatus($payload::SUCCESS);

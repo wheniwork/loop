@@ -25,6 +25,11 @@ class GetFacebook extends FeedbackDomain
                 return $this->isFeedbackComment($item);
             });
 
+            // Set the time of the latest reply comment in Redis
+            if (count($replies) > 0) {
+                $this->saveLastPostTime(strtotime(end($replies)['created_time']));
+            }
+
             // Process new feedback comments
             $output = ['new_comments' => []];
             foreach ($replies as $reply) {
@@ -33,11 +38,6 @@ class GetFacebook extends FeedbackDomain
                     $this->createFeedback($parent['message'], "Facebook");
                     array_push($output['new_comments'], $parent);
                 }
-            }
-
-            // Set the time of the latest reply comment in Redis
-            if (count($replies) > 0) {
-                $this->saveLastPostTime(strtotime(end($replies)['created_time']));
             }
 
             $payload->setStatus($payload::SUCCESS);
