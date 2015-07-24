@@ -30,7 +30,18 @@ class GetSatismeter extends FeedbackDomain
             $output = ['new_responses' => []];
             foreach ($responses as $response) {
                 if (!empty($response->feedback)) {
-                    $this->createFeedback($response->feedback, "Satismeter");
+                    $score = $response->rating;
+                    $body = $response->feedback;
+                    $tone = self::NEUTRAL;
+                    if ($response->category == "promoter") {
+                        $tone = self::POSITIVE;
+                    } else if ($response->category == "passive") {
+                        $tone = self::PASSIVE;
+                    } else if ($response->category == "detractor") {
+                        $tone = self::NEGATIVE;
+                    }
+
+                    $this->createFeedback("<strong>$score.</strong> $body", "Satismeter", $tone);
                     array_push($output['new_responses'], $response);
                 }
             }
