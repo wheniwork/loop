@@ -29,6 +29,6 @@ abstract class FeedbackDomain implements DomainInterface
     protected function createFeedback($body, $source)
     {
         HipChatService::postMessage("From $source: $body");
-        GithubService::createIssue('Feedback Item', $body);
+        GithubService::createIssue("Feedback from $source", $body);
     }
 }
