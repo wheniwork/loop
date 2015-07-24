@@ -23,7 +23,12 @@ class DoGeneric extends FeedbackDomain
                 throw new RuntimeException("Missing required field 'source'");
             }
 
-            $this->createFeedback($input['body'], $input['source']);
+            $tone = self::NEUTRAL;
+            if (!empty($input['tone'])) {
+                $tone = strtoupper($input['tone']);
+            }
+
+            $this->createFeedback($input['body'], $input['source'], $tone);
 
             $payload->setStatus($payload::SUCCESS);
             $payload->setOutput([
