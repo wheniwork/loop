@@ -35,8 +35,12 @@ class GetTwitter extends FeedbackDomain
 
                 if ($is_reply && $tagged_feedback) {
                     $replied_tweet = $this->getTweet($tweet->in_reply_to_status_id);
+                    
+                    $body = $replied_tweet->text;
+                    $url = $this->getTweetURL($replied_tweet);
+                    $feedback_html = "$body<br><br><a href=\"$url\">$url</a>";
 
-                    $this->createFeedback($replied_tweet->text, "Twitter");
+                    $this->createFeedback($feedback_html, "Twitter");
                     array_push($output['new_tweets'], $replied_tweet);
                 }
             }
@@ -70,5 +74,11 @@ class GetTwitter extends FeedbackDomain
 
     private function saveLastTweetID($id) {
         $this->redis->set(self::TWITTER_REDIS_KEY, $id);
+    }
+
+    private function getTweetURL($tweet) {
+        $screen_name = $tweet->user->screen_name;
+        $id_str = $tweet->id_str;
+        return "https://twitter.com/$screen_name/status/$id_str";
     }
 }

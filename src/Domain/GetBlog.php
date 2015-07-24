@@ -35,7 +35,11 @@ class GetBlog extends FeedbackDomain
                 if ($is_reply && $from_feedback_user && $tagged_feedback) {
                     $parent_comment = BlogService::getComment($comment['parent']);
 
-                    $this->createFeedback($parent_comment['content'], "the blog");
+                    $body = $parent_comment['content'];
+                    $url = $parent_comment['link'];
+                    $feedback_html = "$body<br><br><a href=\"$url\">$url</a>";
+
+                    $this->createFeedback($feedback_html, "the blog");
                     array_push($output['new_comments'], $parent_comment);
                 }
             }
