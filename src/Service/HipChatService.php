@@ -3,6 +3,13 @@ namespace Wheniwork\Feedback\Service;
 
 class HipChatService
 {
+    const GRAY = "gray";
+    const GREEN = "green";
+    const YELLOW = "yellow";
+    const RED = "red";
+    const PURPLE = "purple";
+    const RANDOM = "random";
+
     private static function post($endpoint, $params)
     {
         $url = "https://api.hipchat.com/v2" . $endpoint;
@@ -24,11 +31,11 @@ class HipChatService
         return $response;
     }
 
-    public static function postMessage($content)
+    public static function postMessage($content, $color = self::GRAY)
     {
         self::post("/room/" . $_ENV['HIPCHAT_ROOM'] . "/notification", [
             'message' => $content,
-            'color' => 'gray',
+            'color' => $color,
             'notify' => true
         ]);
     }
