@@ -20,6 +20,7 @@ $app->addRoutes(function(Spark\Router $r) {
     $r->get('/appstore', "$ns\Domain\GetAppStore");
 
     $r->post('/post', "$ns\Domain\DoGeneric");
+    $r->post('/zendesk', "$ns\Domain\DoZendesk");
 });
 
 date_default_timezone_set('UTC');

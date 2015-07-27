@@ -3,7 +3,7 @@ namespace Wheniwork\Feedback\Domain;
 
 use RuntimeException;
 
-class DoGeneric extends FeedbackDomain
+class DoZendesk extends FeedbackDomain
 {
     public function __invoke(array $input)
     {
@@ -19,22 +19,18 @@ class DoGeneric extends FeedbackDomain
             if (empty($input['body'])) {
                 throw new RuntimeException("Missing required field 'body'");
             }
-            if (empty($input['source'])) {
-                throw new RuntimeException("Missing required field 'source'");
-            }
 
-            $tone = self::NEUTRAL;
-            if (!empty($input['tone'])) {
-                $tone = strtoupper($input['tone']);
-            }
+            $body = $input['body'];
+            $body = preg_replace("/-{46}.*?(AM|PM)\s+/s", "", $body);
+            $body = preg_replace("/--\s+?\[.*?\].*?<a href/s", "<br><br><a href", $body);
 
-            $this->createFeedback($input['body'], $input['source'], $tone);
+            $this->createFeedback($body, "Zendesk");
 
             $payload->setStatus($payload::SUCCESS);
             $payload->setOutput([
                 'new_feedback' => [
-                    'body' => $input['body'],
-                    'source' => $input['source']
+                    'body' => $body,
+                    'source' => "Zendesk"
                 ]
             ]);
         } catch (Exception $e) {
