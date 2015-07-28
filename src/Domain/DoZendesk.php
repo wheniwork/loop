@@ -24,7 +24,11 @@ class DoZendesk extends FeedbackDomain
             $body = preg_replace("/-{46}.*?(AM|PM)\s+/s", "", $body);
             $body = preg_replace("/--\s+?\[.*?\].*?<a href/s", "<br><br><a href", $body);
 
-            $this->createFeedback($body, "Zendesk");
+            $body_content = preg_replace("/<br><br><a href.*?<\/a>/", "", $body);
+            print_r($body_content);
+            if (!empty(trim($body_content))) {
+                $this->createFeedback($body, "Zendesk");
+            }
 
             $payload->setStatus($payload::SUCCESS);
             $payload->setOutput([
