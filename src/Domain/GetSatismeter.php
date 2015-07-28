@@ -41,7 +41,7 @@ class GetSatismeter extends FeedbackDomain
                         $tone = self::NEGATIVE;
                     }
 
-                    $this->createFeedback("<strong>$score.</strong> $body", "Satismeter", $tone);
+                    $this->createFeedback("<strong>$score/10.</strong> $body", "Satismeter", $tone);
                     array_push($output['new_responses'], $response);
                 }
             }

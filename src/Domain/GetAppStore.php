@@ -42,7 +42,7 @@ class GetAppStore extends FeedbackDomain
 
                 $feedback_html = "<strong>$title ($score/5)</strong><br>$body";
 
-                $this->createFeedback($feedback_html, "the App Store", $tone);
+                $this->createFeedback($feedback_html, "the iTunes App Store", $tone);
                 array_push($output['new_reviews'], $review);
             }
 
