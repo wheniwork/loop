@@ -3,62 +3,59 @@ namespace Wheniwork\Feedback\Domain;
 
 use Wheniwork\Feedback\Service\FacebookService;
 
-class GetFacebook extends FeedbackDomain
+class GetFacebook extends FeedbackGetDomain
 {
-    const FB_REDIS_KEY = 'fb_last_time';
-
-    public function __invoke(array $input)
+    protected function getRedisKey()
     {
-        $payload = $this->getPayload();
+        return "fb_last_time";
+    }
 
-        try {
-            // Initialize Redis key if necessary
-            if (empty($this->getLastPostTime())) {
-                $this->saveLastPostTime(1);
-            }
-            $last_time = $this->getLastPostTime();
+    protected function getSourceName()
+    {
+        return "Facebook";
+    }
 
-            // Get new posts since we last checked
-            $replies = FacebookService::getReplyComments($this->getLastPostTime());
-            $payload->setOutput($replies);
-            $replies = array_filter($replies, function($item) {
-                return $this->isFeedbackComment($item);
-            });
+    protected function getOutputKeyName()
+    {
+        return "new_comments";
+    }
 
-            // Set the time of the latest reply comment in Redis
-            if (count($replies) > 0) {
-                $this->saveLastPostTime(strtotime(end($replies)['created_time']));
-            }
+    protected function getFeedbackItems()
+    {
+        $replies = FacebookService::getReplyComments($this->getRedisValue());
+        $replies = array_filter($replies, function($item) {
+            return $this->isFeedbackComment($item);
+        });
 
-            // Process new feedback comments
-            $output = ['new_comments' => []];
-            foreach ($replies as $reply) {
-                if (strtotime($reply['created_time']) > $last_time) {
-                    $parent = FacebookService::getCommentParent($reply['id']);
-                    $this->createFeedback($parent['message'], "Facebook");
-                    array_push($output['new_comments'], $parent);
-                }
+        $feedbackComments = [];
+        foreach ($replies as $reply) {
+            if (strtotime($reply['created_time']) <= $last_time) {
+                continue;
             }
 
-            $payload->setStatus($payload::SUCCESS);
-            $payload->setOutput($output);
-        } catch (Exception $e) {
-            $payload->setStatus($payload::ERROR);
-            $payload->setOutput($e);
+            $feedbackComments[] = FacebookService::getCommentParent($reply['id']);
         }
 
-        return $payload;
+        return $feedbackComments;
     }
 
-    private function getLastPostTime() {
-        return $this->redis->get(self::FB_REDIS_KEY);
+    protected function getValueForRedis($feedbackItem)
+    {
+        // This apparently might need to access a different
+        // value - instead of getting the first item as usual,
+        // this endpoint used to get the *last* item in the
+        // response. Don't remember why. Test this!
+        return strtotime($feedbackItem['created_time']);
     }
 
-    private function saveLastPostTime($time) {
-        $this->redis->set(self::FB_REDIS_KEY, $time);
+    protected function getFeedbackHTML($feedbackItem)
+    {
+        $body = $feedbackItem['message'];
+        return "$body";
     }
 
-    private function isFeedbackComment($comment) {
+    private function isFeedbackComment($comment)
+    {
         $from_wheniwork = $comment['from']['id'] == $_ENV['FB_PAGE_ID'];
         $tagged_feedback = $this->isTaggedFeedback($comment['message']);
         return $from_wheniwork && $tagged_feedback;

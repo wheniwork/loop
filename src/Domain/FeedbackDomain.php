@@ -39,6 +39,16 @@ abstract class FeedbackDomain implements DomainInterface
         GithubService::createIssue("Feedback from $source", $body);
     }
 
+    abstract protected function getRedisKey();
+
+    protected function getRedisValue() {
+        return $this->redis->get($this->getRedisKey());
+    }
+
+    protected function setRedisValue($value) {
+        $this->redis->set($this->getRedisKey(), $value);
+    }
+
     private function colorForTone($tone) {
         switch ($tone) {
             case self::POSITIVE:

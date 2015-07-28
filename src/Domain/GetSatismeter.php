@@ -3,65 +3,70 @@ namespace Wheniwork\Feedback\Domain;
 
 use Wheniwork\Feedback\Service\SatismeterService;
 
-class GetSatismeter extends FeedbackDomain
+class GetSatismeter extends FeedbackGetDomain
 {
-    const SATISMETER_REDIS_KEY = "satismeter_last_time";
-
-    public function __invoke(array $input)
+    protected function getRedisKey()
     {
-        $payload = $this->getPayload();
+        return "satismeter_last_time";
+    }
 
-        try {
-            // Initialize Redis key if necessary
-            if (empty($this->getLastResponseTime())) {
-                $startOfDay = strtotime("midnight");
-                $this->saveLastResponseTime($startOfDay);
+    protected function getSourceName()
+    {
+        return "Satismeter";
+    }
+
+    protected function getOutputKeyName()
+    {
+        return "new_responses";
+    }
+
+    protected function getFeedbackItems()
+    {
+        $responses = SatismeterService::getResponses($this->getRedisValue());
+        $feedbackResponses = [];
+        foreach ($responses as $response) {
+            if (empty($response->feedback)) {
+                continue;
             }
 
-            // Get new responses since we last checked
-            $responses = SatismeterService::getResponses($this->getLastResponseTime());
-
-            // Set the time of the latest response in Redis
-            if (count($responses) > 0) {
-                $this->saveLastResponseTime(strtotime(reset($responses)->created) + 1);
-            }
-
-            // Process new responses
-            $output = ['new_responses' => []];
-            foreach ($responses as $response) {
-                if (!empty($response->feedback)) {
-                    $score = $response->rating;
-                    $body = $response->feedback;
-                    $email = $response->user->email;
-                    $tone = self::NEUTRAL;
-                    if ($response->category == "promoter") {
-                        $tone = self::POSITIVE;
-                    } else if ($response->category == "passive") {
-                        $tone = self::PASSIVE;
-                    } else if ($response->category == "detractor") {
-                        $tone = self::NEGATIVE;
-                    }
-
-                    $this->createFeedback("<strong>$score/10.</strong> $body <i>(From $email)</i>", "Satismeter", $tone);
-                    array_push($output['new_responses'], $response);
-                }
-            }
-
-            $payload->setStatus($payload::SUCCESS);
-            $payload->setOutput($output);
-        } catch (Exception $e) {
-            $payload->setStatus($payload::ERROR);
-            $payload->setOutput($e);
+            $feedbackResponses[] = $response;
         }
 
-        return $payload;
+        return $feedbackResponses;
     }
 
-    private function getLastResponseTime() {
-        return $this->redis->get(self::SATISMETER_REDIS_KEY);
+    protected function initRedis()
+    {
+        $startOfDay = strtotime("midnight");
+        $this->setRedisValue($startOfDay);
     }
 
-    private function saveLastResponseTime($time) {
-        $this->redis->set(self::SATISMETER_REDIS_KEY, $time);
+    protected function getValueForRedis($feedbackItem)
+    {
+        return strtotime($feedbackItem->created) + 1;
+    }
+
+    protected function getFeedbackHTML($feedbackItem)
+    {
+        $score = $feedbackItem->rating;
+        $body = $feedbackItem->feedback;
+        $email = $feedbackItem->user->email;
+        return "<strong>$score/10.</strong> $body <i>(From $email)</i>";
+    }
+
+    protected function getTone($feedbackItem)
+    {
+        $score = $feedbackItem->rating;
+
+        $tone = self::NEUTRAL;
+        if ($feedbackItem->category == "promoter") {
+            $tone = self::POSITIVE;
+        } else if ($feedbackItem->category == "passive") {
+            $tone = self::PASSIVE;
+        } else if ($feedbackItem->category == "detractor") {
+            $tone = self::NEGATIVE;
+        }
+
+        return $tone;
     }
 }
