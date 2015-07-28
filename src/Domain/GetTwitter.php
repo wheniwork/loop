@@ -4,55 +4,50 @@ namespace Wheniwork\Feedback\Domain;
 use Wheniwork\Feedback\Service\TwitterService;
 use TwitterAPIExchange;
 
-class GetTwitter extends FeedbackDomain
+class GetTwitter extends FeedbackGetDomain
 {
-    const TWITTER_REDIS_KEY = "twitter_last_id";
-
-    public function __invoke(array $input)
+    protected function getRedisKey()
     {
-        $payload = $this->getPayload();
+        return "twitter_last_id";
+    }
 
-        try {
-            // Initialize Redis key if necessary
-            if (empty($this->getLastTweetID())) {
-                $this->saveLastTweetID(1);
+    protected function getSourceName()
+    {
+        return "Twitter";
+    }
+
+    protected function getOutputKeyName()
+    {
+        return "new_tweets";
+    }
+
+    protected function getFeedbackItems()
+    {
+        $tweets = $this->getTweetsSince($this->getRedisValue());
+        
+        $feedbackTweets = [];
+        foreach ($tweets as $tweet) {
+            $is_reply = !empty($tweet->in_reply_to_status_id);
+            $tagged_feedback = $this->isTaggedFeedback($tweet->text);
+
+            if ($is_reply && $tagged_feedback) {
+                $feedbackTweets[] = $this->getTweet($tweet->in_reply_to_status_id);
             }
-
-            // Get new tweets since we last checked
-            $last_id = $this->getLastTweetID();
-            $tweets = $this->getTweetsSince($last_id);
-
-            // Set the id of the latest tweet in Redis
-            if (count($tweets) > 0) {
-                $this->saveLastTweetID(reset($tweets)->id);
-            }
-
-            // Process new feedback tweets
-            $output = ['new_tweets' => []];
-            foreach ($tweets as $tweet) {
-                $is_reply = !empty($tweet->in_reply_to_status_id);
-                $tagged_feedback = $this->isTaggedFeedback($tweet->text);
-
-                if ($is_reply && $tagged_feedback) {
-                    $replied_tweet = $this->getTweet($tweet->in_reply_to_status_id);
-                    
-                    $body = $replied_tweet->text;
-                    $url = $this->getTweetURL($replied_tweet);
-                    $feedback_html = "$body<br><br><a href=\"$url\">$url</a>";
-
-                    $this->createFeedback($feedback_html, "Twitter");
-                    array_push($output['new_tweets'], $replied_tweet);
-                }
-            }
-
-            $payload->setStatus($payload::SUCCESS);
-            $payload->setOutput($output);
-        } catch (Exception $e) {
-            $payload->setStatus($payload::ERROR);
-            $payload->setOutput($e);
         }
         
-        return $payload;
+        return $feedbackTweets;
+    }
+
+    protected function getValueForRedis($feedbackItem)
+    {
+        return $feedbackItem->id;
+    }
+
+    protected function getFeedbackHTML($feedbackItem)
+    {
+        $body = $feedbackItem->text;
+        $url = $this->getTweetURL($feedbackItem);
+        return "$body<br><br><a href=\"$url\">$url</a>";
     }
 
     private function getTweetsSince($last_id) {
@@ -66,14 +61,6 @@ class GetTwitter extends FeedbackDomain
         return TwitterService::get('https://api.twitter.com/1.1/statuses/show.json', [
             'id' => $id
         ]);
-    }
-
-    private function getLastTweetID() {
-        return $this->redis->get(self::TWITTER_REDIS_KEY);
-    }
-
-    private function saveLastTweetID($id) {
-        $this->redis->set(self::TWITTER_REDIS_KEY, $id);
     }
 
     private function getTweetURL($tweet) {

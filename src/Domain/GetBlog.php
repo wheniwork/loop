@@ -3,66 +3,53 @@ namespace Wheniwork\Feedback\Domain;
 
 use Wheniwork\Feedback\Service\BlogService;
 
-class GetBlog extends FeedbackDomain
+class GetBlog extends FeedbackGetDomain
 {
-    const WP_REDIS_KEY = "wp_last_time";
-
-    public function __invoke(array $input)
+    protected function getRedisKey()
     {
-        $payload = $this->getPayload();
+        return "wp_last_time";
+    }
 
-        try {
-            // Initialize Redis key if necessary
-            if (empty($this->getLastCommentTime())) {
-                $this->saveLastCommentTime(0);
+    protected function getSourceName()
+    {
+        return "the blog";
+    }
+
+    protected function getOutputKeyName()
+    {
+        return "new_comments";
+    }
+
+    protected function getFeedbackItems()
+    {
+        $comments = BlogService::getPublishedComments(50, $this->getRedisValue());
+        $feedbackComments = [];
+        foreach ($comments as $comment) {
+            $is_reply = $comment['parent'] != "0";
+            $from_feedback_user = in_array($comment['user_id'], $this->getFeedbackUsers());
+            $tagged_feedback = $this->isTaggedFeedback($comment['content']);
+
+            if ($is_reply && $from_feedback_user && $tagged_feedback) {
+                $feedbackComments[] = BlogService::getComment($comment['parent']);
             }
-
-            // Get new comments since we last checked
-            $comments = BlogService::getPublishedComments(50, $this->getLastCommentTime());
-
-            // Set the time of the latest comment in Redis
-            if (count($comments) > 0) {
-                $this->saveLastCommentTime(reset($comments)['date_created_gmt']->timestamp);
-            }
-
-            // Process new comments
-            $output = ['new_comments' => []];
-            foreach ($comments as $comment) {
-                $is_reply = $comment['parent'] != "0";
-                $from_feedback_user = in_array($comment['user_id'], $this->getFeedbackUsers());
-                $tagged_feedback = $this->isTaggedFeedback($comment['content']);
-
-                if ($is_reply && $from_feedback_user && $tagged_feedback) {
-                    $parent_comment = BlogService::getComment($comment['parent']);
-
-                    $body = $parent_comment['content'];
-                    $url = $parent_comment['link'];
-                    $feedback_html = "$body<br><br><a href=\"$url\">$url</a>";
-
-                    $this->createFeedback($feedback_html, "the blog");
-                    array_push($output['new_comments'], $parent_comment);
-                }
-            }
-            
-            $payload->setStatus($payload::SUCCESS);
-            $payload->setOutput($output);
-        } catch (Exception $e) {
-            $payload->setStatus($payload::ERROR);
-            $payload->setOutput($e);
         }
-
-        return $payload;
+        return $feedbackComments;
     }
 
-    private function getFeedbackUsers() {
+    protected function getValueForRedis($feedbackItem)
+    {
+        return $feedbackItem['date_created_gmt']->timestamp;
+    }
+
+    protected function getFeedbackHTML($feedbackItem)
+    {
+        $body = $feedbackItem['content'];
+        $url = $feedbackItem['link'];
+        return "$body<br><br><a href=\"$url\">$url</a>";
+    }
+
+    private function getFeedbackUsers()
+    {
         return preg_split('/\s*,\s*/', $_ENV['WP_FEEDBACK_USERS']);
-    }
-
-    private function getLastCommentTime() {
-        return $this->redis->get(self::WP_REDIS_KEY);
-    }
-
-    private function saveLastCommentTime($time) {
-        $this->redis->set(self::WP_REDIS_KEY, $time);
     }
 }

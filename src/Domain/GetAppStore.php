@@ -3,64 +3,53 @@ namespace Wheniwork\Feedback\Domain;
 
 use Wheniwork\Feedback\Service\AppStoreService;
 
-class GetAppStore extends FeedbackDomain
+class GetAppStore extends FeedbackGetDomain
 {
-    const APP_STORE_REDIS_KEY = "app_store_last_id";
-
-    public function __invoke(array $input)
+    protected function getRedisKey()
     {
-        $payload = $this->getPayload();
+        return "app_store_last_id";
+    }
 
-        try {
-            // Initialize Redis key if necessary
-            if (empty($this->getLastReviewID())) {
-                $this->setLastReviewID(1);
-            }
+    protected function getSourceName()
+    {
+        return "the iTunes App Store";
+    }
 
-            // Get new reviews since we last looked
-            $reviews = AppStoreService::getReviews($_ENV['WIW_IOS_APP_ID'], $this->getLastReviewID());
+    protected function getOutputKeyName()
+    {
+        return "new_reviews";
+    }
 
-            // Set the id of the latest review in Redis
-            if (count($reviews) > 0) {
-                $this->setLastReviewID(reset($reviews)['id']);
-            }
+    protected function getFeedbackItems()
+    {
+        return AppStoreService::getReviews($_ENV['WIW_IOS_APP_ID'], $this->getRedisValue());
+    }
 
-            // Process new reviews
-            $output = ['new_reviews' => []];
-            foreach ($reviews as $review) {
-                $body = $review['content'];
-                $title = $review['title'];
-                $score = $review['rating'];
-                $tone = self::NEUTRAL;
-                if ($score >= 4) {
-                    $tone = self::POSITIVE;
-                } else if ($score == 3) {
-                    $tone = self::PASSIVE;
-                } else if ($score <= 2) {
-                    $tone = self::NEGATIVE;
-                }
+    protected function getValueForRedis($feedbackItem)
+    {
+        return $feedbackItem['id'];
+    }
 
-                $feedback_html = "<strong>$title ($score/5)</strong><br>$body";
+    protected function getFeedbackHTML($feedbackItem)
+    {
+        $body = $feedbackItem['content'];
+        $title = $feedbackItem['title'];
+        $score = $feedbackItem['rating'];
+        return "<strong>$title ($score/5)</strong><br>$body";
+    }
 
-                $this->createFeedback($feedback_html, "the iTunes App Store", $tone);
-                array_push($output['new_reviews'], $review);
-            }
+    protected function getTone($feedbackItem)
+    {
+        $score = $feedbackItem['rating'];
 
-            $payload->setStatus($payload::SUCCESS);
-            $payload->setOutput($output);
-        } catch (Exception $e) {
-            $payload->setStatus($payload::ERROR);
-            $payload->setOutput($e);
+        $tone = self::NEUTRAL;
+        if ($score >= 4) {
+            $tone = self::POSITIVE;
+        } else if ($score == 3) {
+            $tone = self::PASSIVE;
+        } else if ($score <= 2) {
+            $tone = self::NEGATIVE;
         }
-        
-        return $payload;
-    }
-
-    private function getLastReviewID() {
-        return $this->redis->get(self::APP_STORE_REDIS_KEY);
-    }
-
-    private function setLastReviewID($id) {
-        $this->redis->set(self::APP_STORE_REDIS_KEY, $id);
+        return $tone;
     }
 }
