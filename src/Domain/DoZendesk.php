@@ -25,7 +25,6 @@ class DoZendesk extends FeedbackDomain
             $body = preg_replace("/--\s+?\[.*?\].*?<a href/s", "<br><br><a href", $body);
 
             $body_content = preg_replace("/<br><br><a href.*?<\/a>/", "", $body);
-            print_r($body_content);
             if (!empty(trim($body_content))) {
                 $this->createFeedback($body, "Zendesk");
             }
