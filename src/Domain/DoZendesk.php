@@ -32,8 +32,9 @@ class DoZendesk extends FeedbackDomain
 
             $link = "https://" . $input['link'];
 
-            if (!empty(trim($body))) {
-                $this->createFeedback("$body<br><br><a href=\"$link\">$link</a>", "Zendesk");
+            $body_content = preg_replace("/<br><br><a href.*?<\/a>/", "", $body);
+            if (!empty(trim($body_content))) {
+                $this->createFeedback($body, "Zendesk");
             }
 
             $payload->setStatus($payload::SUCCESS);
