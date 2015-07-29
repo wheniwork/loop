@@ -19,15 +19,21 @@ class DoZendesk extends FeedbackDomain
             if (empty($input['body'])) {
                 throw new RuntimeException("Missing required field 'body'");
             }
+            if (empty($input['link'])) {
+                throw new RuntimeException("Missing required field 'link'");
+            }
 
             $body = $input['body'];
             $body = preg_replace("/-{46}.*?(AM|PM)\s+/s", "", $body);
-            $body = preg_replace("/--\s+?\[.*?\].*?<a href/s", "<br><br><a href", $body);
+            $body = preg_replace("/--\s+\[.*\].*/s", "", $body);
+            if (strlen($body) > 400) {
+                $body = preg_replace("/\s+?(\S+)?$/", "", substr($body, 0, 401)) . "...";
+            }
 
-            $body_content = preg_replace("/<br><br><a href.*?<\/a>/", "", $body);
-            print_r($body_content);
-            if (!empty(trim($body_content))) {
-                $this->createFeedback($body, "Zendesk");
+            $link = "https://" . $input['link'];
+
+            if (!empty(trim($body))) {
+                $this->createFeedback("$body<br><br><a href=\"$link\">$link</a>", "Zendesk");
             }
 
             $payload->setStatus($payload::SUCCESS);
