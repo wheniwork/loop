@@ -1,10 +1,25 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
+use Predis\Client as RedisClient;
+use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\HipChatService;
 use Wheniwork\Feedback\Service\SatismeterService;
 
 class GetSatismeter extends FeedbackGetDomain
 {
+    private $satismeter;
+    
+    public function __construct(
+        HipChatService $hipchat,
+        GithubService $github,
+        RedisClient $redis,
+        SatismeterService $satismeter
+    ) {
+        parent::__construct($hipchat, $github, $redis);
+        $this->satismeter = $satismeter;
+    }
+
     protected function getRedisKey()
     {
         return "satismeter_last_time";
@@ -22,7 +37,7 @@ class GetSatismeter extends FeedbackGetDomain
 
     protected function getFeedbackItems()
     {
-        $responses = SatismeterService::getResponses($this->getRedisValue());
+        $responses = $this->satismeter->getResponses($this->getRedisValue());
         $feedbackResponses = [];
         foreach ($responses as $response) {
             if (empty($response->feedback)) {

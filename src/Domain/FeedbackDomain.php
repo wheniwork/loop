@@ -13,6 +13,17 @@ abstract class FeedbackDomain implements DomainInterface
     const NEGATIVE = 'NEGATIVE';
     const NEUTRAL = 'NEUTRAL';
 
+    private $hipchat;
+    private $github;
+
+    public function __construct(
+        HipChatService $hipchat,
+        GithubService $github
+    ) {
+        $this->hipchat = $hipchat;
+        $this->github = $github;
+    }
+
     public function getPayload()
     {
         return new Payload();
@@ -38,9 +49,9 @@ abstract class FeedbackDomain implements DomainInterface
     protected function createFeedback($body, $source, $tone = self::NEUTRAL)
     {
         $color = $this->colorForTone($tone);
-        HipChatService::postMessage("<strong>From $source:</strong> $body", $color);
+        $this->hipchat->postMessage("<strong>From $source:</strong> $body", $color);
 
-        GithubService::createIssue("Feedback from $source", $body);
+        $this->github->createIssue("Feedback from $source", $body);
     }
 
     /**

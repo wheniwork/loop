@@ -1,10 +1,25 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
+use Predis\Client as RedisClient;
 use Wheniwork\Feedback\Service\BlogService;
+use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\HipChatService;
 
 class GetBlog extends FeedbackGetDomain
 {
+    private $blog;
+
+    public function __construct(
+        HipChatService $hipchat,
+        GithubService $github,
+        RedisClient $redis,
+        BlogService $blog
+    ) {
+        parent::__construct($hipchat, $github, $redis);
+        $this->blog = $blog;
+    }
+
     protected function getRedisKey()
     {
         return "wp_last_time";
@@ -22,7 +37,7 @@ class GetBlog extends FeedbackGetDomain
 
     protected function getFeedbackItems()
     {
-        $comments = BlogService::getPublishedComments(50, $this->getRedisValue());
+        $comments = $this->blog->getPublishedComments(50, $this->getRedisValue());
         $feedbackComments = [];
         foreach ($comments as $comment) {
             $is_reply = $comment['parent'] != "0";
@@ -30,7 +45,7 @@ class GetBlog extends FeedbackGetDomain
             $tagged_feedback = $this->isTaggedFeedback($comment['content']);
 
             if ($is_reply && $from_feedback_user && $tagged_feedback) {
-                $feedbackComments[] = BlogService::getComment($comment['parent']);
+                $feedbackComments[] = $this->blog->getComment($comment['parent']);
             }
         }
         return $feedbackComments;

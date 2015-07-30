@@ -10,7 +10,16 @@ class HipChatService
     const PURPLE = "purple";
     const RANDOM = "random";
 
-    private static function post($endpoint, $params)
+    private $key;
+    private $room;
+
+    public function __construct($key, $room)
+    {
+        $this->key = $key;
+        $this->room = $room;
+    }
+
+    private function post($endpoint, $params)
     {
         $url = "https://api.hipchat.com/v2" . $endpoint;
         $postfields = json_encode($params);
@@ -31,9 +40,9 @@ class HipChatService
         return $response;
     }
 
-    public static function postMessage($content, $color = self::GRAY)
+    public function postMessage($content, $color = self::GRAY)
     {
-        self::post("/room/" . $_ENV['HIPCHAT_ROOM'] . "/notification", [
+        $this->post("/room/$this->room/notification", [
             'message' => $content,
             'color' => $color,
             'notify' => true

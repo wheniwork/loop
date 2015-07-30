@@ -3,9 +3,16 @@ namespace Wheniwork\Feedback\Service;
 
 class AppStoreService
 {
-    public static function getReviews($app_id, $after_id)
+    private $app_id;
+
+    public function __construct($app_id)
     {
-        $endpoint = "https://itunes.apple.com/rss/customerreviews/id=$app_id/sortBy=mostRecent/json";
+        $this->app_id = $app_id;
+    }
+
+    public function getReviews($after_id)
+    {
+        $endpoint = "https://itunes.apple.com/rss/customerreviews/id=$this->app_id/sortBy=mostRecent/json";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $endpoint);

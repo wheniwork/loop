@@ -2,13 +2,19 @@
 namespace Wheniwork\Feedback\Domain;
 
 use Predis\Client as RedisClient;
+use Wheniwork\Feedback\Service\HipChatService;
+use Wheniwork\Feedback\Service\GithubService;
 
 abstract class FeedbackGetDomain extends FeedbackDomain
 {
-    protected $redis;
-
-    public function __construct(RedisClient $redis)
-    {
+    private $redis;
+    
+    public function __construct(
+        HipChatService $hipchat,
+        GithubService $github,
+        RedisClient $redis
+    ) {
+        parent::__construct($hipchat, $github);
         $this->redis = $redis;
     }
 
@@ -57,7 +63,8 @@ abstract class FeedbackGetDomain extends FeedbackDomain
     /**
      * Gets the cached value for this domain from Redis.
      */
-    protected function getRedisValue() {
+    protected function getRedisValue()
+    {
         return $this->redis->get($this->getRedisKey());
     }
 
@@ -66,7 +73,8 @@ abstract class FeedbackGetDomain extends FeedbackDomain
      *
      * @param int $value    The value to save in Redis.
      */
-    protected function setRedisValue($value) {
+    protected function setRedisValue($value)
+    {
         $this->redis->set($this->getRedisKey(), $value);
     }
 

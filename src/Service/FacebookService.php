@@ -5,44 +5,43 @@ use Facebook\Facebook;
 
 class FacebookService
 {
-    private static function getFacebook()
+    private $fb;
+    private $app_token;
+    private $page_id;
+
+    public function __construct(Facebook $fb, $page_id)
     {
-        $fb = new Facebook([
-            'app_id' => $_ENV['FB_APP_ID'],
-            'app_secret' => $_ENV['FB_APP_SECRET'],
-            'default_graph_version' => 'v2.4',
-        ]);
-        return $fb;
+        $this->fb = $fb;
+        $this->page_id = $page_id;
     }
 
-    private static function getAppToken() {
-        if (empty($_ENV['FB_APP_TOKEN'])) {
-            $response = self::get('/oauth/access_token', [
-                'client_id' => $_ENV['FB_APP_ID'],
-                'client_secret' => $_ENV['FB_APP_SECRET'],
-                'grant_type' => 'client_credentials',
-            ], false);
-            $_ENV['FB_APP_TOKEN'] = $response['access_token'];
-        }
-
-        return $_ENV['FB_APP_TOKEN'];
+    public function authenticate($app_id, $app_secret)
+    {
+        $response = $this->get('/oauth/access_token', [
+            'client_id' => $app_id,
+            'client_secret' => $app_secret,
+            'grant_type' => 'client_credentials'
+        ], false);
+        $this->app_token = $response['access_token'];
     }
 
-    private static function get($endpoint, $params = [], $needs_authentication = true) {
+    private function get($endpoint, $params = [], $needs_authentication = true) {
         $request = $endpoint;
         if (!empty($params)) {
             $request .= '?' . http_build_query($params);
         }
 
-        $fb = self::getFacebook();
         if ($needs_authentication) {
-            $fb->setDefaultAccessToken(self::getAppToken());
+            if (empty($this->app_token)) {
+                throw new \RuntimeException('You must authenticate before performing this request.');
+            }
+            $this->fb->setDefaultAccessToken($this->app_token);
         }
-        $response = $fb->get($request);
+        $response = $this->fb->get($request);
         return $response->getDecodedBody();
     }
 
-    private static function sortByDate(&$array, $key, $ascending = true) {
+    private function sortByDate(&$array, $key, $ascending = true) {
         usort($array, function($a, $b) use ($key, $ascending) {
             $sort = strtotime($a[$key]) - strtotime($b[$key]);
             if ($ascending) {
@@ -58,10 +57,10 @@ class FacebookService
      *
      * @param int $after_time The time after which to retrieve comments.
      */
-    public static function getReplyComments($after_time = 0)
+    public function getReplyComments($after_time = 0)
     {
-        $results = self::get('/'.$_ENV['FB_PAGE_ID'], [
-            'fields' => 'posts{comments{comments}}',
+        $results = $this->get("/$this->page_id", [
+            'fields' => 'posts{comments{comments}}'
         ]);
 
         $replies = [];
@@ -85,7 +84,7 @@ class FacebookService
             }
         }
 
-        self::sortByDate($replies, 'created_time');
+        $this->sortByDate($replies, 'created_time');
 
         return $replies;
     }
@@ -95,9 +94,9 @@ class FacebookService
      *
      * @param int $comment_id The id of the comment whose parent should be retrieved.
      */
-    public static function getCommentParent($comment_id) {
-        $results = self::get('/'.$comment_id, [
-            'fields' => 'parent',
+    public function getCommentParent($comment_id) {
+        $results = $this->get("/$comment_id", [
+            'fields' => 'parent'
         ]);
 
         if (empty($results['parent'])) {
