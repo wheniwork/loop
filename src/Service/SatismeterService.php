@@ -5,12 +5,21 @@ use DateTime;
 
 class SatismeterService
 {
-    public static function getResponses($after_time)
+    private $key;
+    private $product_id;
+
+    public function __construct($key, $product_id)
+    {
+        $this->key = $key;
+        $this->product_id = $product_id;
+    }
+
+    public function getResponses($after_time)
     {
         $endpoint = "https://app.satismeter.com/api/responses";
         $params = http_build_query([
             'startDate' => date(DateTime::ISO8601, $after_time),
-            'project' => $_ENV['SATISMETER_PRODUCT_ID']
+            'project' => $this->product_id
         ]);
 
         $ch = curl_init();

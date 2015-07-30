@@ -1,10 +1,25 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
+use Predis\Client as RedisClient;
 use Wheniwork\Feedback\Service\FacebookService;
+use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\HipChatService;
 
 class GetFacebook extends FeedbackGetDomain
 {
+    private $facebook;
+
+    public function __construct(
+        HipChatService $hipchat,
+        GithubService $github,
+        RedisClient $redis,
+        FacebookService $facebook
+    ) {
+        parent::__construct($hipchat, $github, $redis);
+        $this->facebook = $facebook;
+    }
+
     protected function getRedisKey()
     {
         return "fb_last_time";
@@ -22,7 +37,7 @@ class GetFacebook extends FeedbackGetDomain
 
     protected function getFeedbackItems()
     {
-        $replies = FacebookService::getReplyComments($this->getRedisValue());
+        $replies = $this->facebook->getReplyComments($this->getRedisValue());
         $replies = array_filter($replies, function($item) {
             return $this->isFeedbackComment($item);
         });
@@ -33,7 +48,7 @@ class GetFacebook extends FeedbackGetDomain
                 continue;
             }
 
-            $feedbackComments[] = FacebookService::getCommentParent($reply['id']);
+            $feedbackComments[] = $this->facebook->getCommentParent($reply['id']);
         }
 
         return $feedbackComments;

@@ -5,10 +5,11 @@ use \HieuLe\WordpressXmlrpcClient\WordpressClient;
 
 class BlogService
 {
-    private static function getClient()
+    private $client;
+
+    public function __construct(WordpressClient $client)
     {
-        $wp = new WordpressClient($_ENV['WP_ENDPOINT'], $_ENV['WP_USER'], $_ENV['WP_PASSWORD']);
-        return $wp;
+        $this->client = $client;
     }
 
     /**
@@ -18,10 +19,9 @@ class BlogService
      *
      * @link https://codex.wordpress.org/XML-RPC_WordPress_API/Comments#wp.getComment
      */
-    public static function getComment($comment_id)
+    public function getComment($comment_id)
     {
-        $wp = self::getClient();
-        return $wp->getComment($comment_id);
+        return $this->client->getComment($comment_id);
     }
 
     /**
@@ -33,10 +33,9 @@ class BlogService
      *
      * @link https://codex.wordpress.org/XML-RPC_WordPress_API/Comments#wp.getComments
      */
-    public static function getPublishedComments($num_comments = 50, $after_time = 0)
+    public function getPublishedComments($num_comments = 50, $after_time = 0)
     {
-        $wp = self::getClient();
-        $comments = $wp->getComments([
+        $comments = $this->client->getComments([
             'status' => 'approve',
             'number' => $num_comments
         ]);

@@ -5,22 +5,16 @@ use \Github\Client as GithubClient;
 
 class GithubService
 {
-    private static $client;
+    private $client;
 
-    private static function getClient()
+    public function __construct(GithubClient $client)
     {
-        if (empty(self::$client)) {
-            self::$client = new GithubClient;
-            self::$client->authenticate($_ENV['GITHUB_TOKEN'], "", GithubClient::AUTH_HTTP_TOKEN);
-        }
-        
-        return self::$client;
+        $this->client = $client;
     }
 
-    public static function createIssue($title, $body)
+    public function createIssue($title, $body)
     {
-        $client = self::getClient();
-        return $client->api('issue')->create(
+        return $this->client->api('issue')->create(
             'wheniwork',
             'loop-feed',
             [

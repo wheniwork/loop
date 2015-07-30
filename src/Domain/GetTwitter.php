@@ -1,11 +1,25 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
+use Predis\Client as RedisClient;
+use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\HipChatService;
 use Wheniwork\Feedback\Service\TwitterService;
-use TwitterAPIExchange;
 
 class GetTwitter extends FeedbackGetDomain
 {
+    private $twitter;
+
+    public function __construct(
+        HipChatService $hipchat,
+        GithubService $github,
+        RedisClient $redis,
+        TwitterService $twitter
+    ) {
+        parent::__construct($hipchat, $github, $redis);
+        $this->twitter = $twitter;
+    }
+
     protected function getRedisKey()
     {
         return "twitter_last_id";
@@ -51,14 +65,14 @@ class GetTwitter extends FeedbackGetDomain
     }
 
     private function getTweetsSince($last_id) {
-        return TwitterService::get('https://api.twitter.com/1.1/statuses/user_timeline.json', [
+        return $this->twitter->get('https://api.twitter.com/1.1/statuses/user_timeline.json', [
             'screen_name' => $_ENV['TWITTER_WATCH_NAME'],
             'since_id' => $last_id
         ]);
     }
 
     private function getTweet($id) {
-        return TwitterService::get('https://api.twitter.com/1.1/statuses/show.json', [
+        return $this->twitter->get('https://api.twitter.com/1.1/statuses/show.json', [
             'id' => $id
         ]);
     }
