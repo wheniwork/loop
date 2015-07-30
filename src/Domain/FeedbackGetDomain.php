@@ -1,8 +1,17 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
+use Predis\Client as RedisClient;
+
 abstract class FeedbackGetDomain extends FeedbackDomain
 {
+    protected $redis;
+
+    public function __construct(RedisClient $redis)
+    {
+        $this->redis = $redis;
+    }
+
     public function __invoke(array $input)
     {
         $payload = $this->getPayload();
@@ -36,6 +45,29 @@ abstract class FeedbackGetDomain extends FeedbackDomain
         }
         
         return $payload;
+    }
+
+    /**
+     * Gets the key for this domain's cache in Redis.
+     *
+     * @return string   The key to use in Redis.
+     */
+    abstract protected function getRedisKey();
+
+    /**
+     * Gets the cached value for this domain from Redis.
+     */
+    protected function getRedisValue() {
+        return $this->redis->get($this->getRedisKey());
+    }
+
+    /**
+     * Sets the Redis cache for this domain.
+     *
+     * @param int $value    The value to save in Redis.
+     */
+    protected function setRedisValue($value) {
+        $this->redis->set($this->getRedisKey(), $value);
     }
 
     /**
