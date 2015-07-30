@@ -32,6 +32,7 @@ class GetSatismeter extends FeedbackDomain
                 if (!empty($response->feedback)) {
                     $score = $response->rating;
                     $body = $response->feedback;
+                    $email = $response->user->email;
                     $tone = self::NEUTRAL;
                     if ($response->category == "promoter") {
                         $tone = self::POSITIVE;
@@ -41,7 +42,7 @@ class GetSatismeter extends FeedbackDomain
                         $tone = self::NEGATIVE;
                     }
 
-                    $this->createFeedback("<strong>$score/10.</strong> $body", "Satismeter", $tone);
+                    $this->createFeedback("<strong>$score/10.</strong> $body <i>(From $email)</i>", "Satismeter", $tone);
                     array_push($output['new_responses'], $response);
                 }
             }
