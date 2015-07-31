@@ -26,7 +26,7 @@ class SatismeterService
         curl_setopt($ch, CURLOPT_URL, $endpoint . '?' . $params);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['AuthKey: ' . $_ENV['SATISMETER_KEY']]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['AuthKey: ' . $this->key]);
         $data = curl_exec($ch);
         curl_close($ch);
 

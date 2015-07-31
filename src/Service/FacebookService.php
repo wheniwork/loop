@@ -104,5 +104,13 @@ class FacebookService
         }
         return $results['parent'];
     }
-    
+
+    /**
+     * Get the id of this service's page.
+     * @return int The page id.
+     */
+    public function getPageId()
+    {
+        return $this->page_id;
+    }    
 }

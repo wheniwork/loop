@@ -5,19 +5,26 @@ define('APP_PATH', realpath(__DIR__ . '/..') . DIRECTORY_SEPARATOR);
 use josegonzalez\Dotenv\Loader as EnvLoader;
 use Facebook\Facebook;
 use \Github\Client as GithubClient;
-use TwitterAPIExchange;
 use \HieuLe\WordpressXmlrpcClient\WordpressClient;
 
 require APP_PATH . 'vendor/autoload.php';
 
 $services = 'Wheniwork\Feedback\Service';
 
+// -------------------
 // Initialize Injector
+// -------------------
 $injector = new Auryn\Injector;
 $injector->define('Predis\Client', []);
 $injector->define(EnvLoader::class, [':filepaths' => __DIR__ . '/../.env']);
 $injector->prepare(EnvLoader::class, function(EnvLoader $loader) {
     $loader->parse()->putenv(true);
+});
+// Services
+$injector->delegate("$services\Authorizer", function() {
+    return new Wheniwork\Feedback\Service\Authorizer(
+        getenv('POST_KEY')
+    );
 });
 $injector->delegate("$services\AppStoreService", function() {
     return new Wheniwork\Feedback\Service\AppStoreService(
@@ -30,7 +37,11 @@ $injector->delegate("$services\BlogService", function() {
         getenv('WP_USER'),
         getenv('WP_PASSWORD')
     );
-    return new Wheniwork\Feedback\Service\BlogService($client);
+    $users = preg_split('/\s*,\s*/', getenv('WP_FEEDBACK_USERS'));
+    return new Wheniwork\Feedback\Service\BlogService(
+        $client,
+        $users
+    );
 });
 $injector->delegate("$services\FacebookService", function() {
     $fb = new Facebook([
@@ -38,7 +49,10 @@ $injector->delegate("$services\FacebookService", function() {
         'app_secret' => getenv('FB_APP_SECRET'),
         'default_graph_version' => 'v2.4'
     ]);
-    $service = new Wheniwork\Feedback\Service\FacebookService($fb, getenv('FB_PAGE_ID'));
+    $service = new Wheniwork\Feedback\Service\FacebookService(
+        $fb,
+        getenv('FB_PAGE_ID')
+    );
     $service->authenticate(
         getenv('FB_APP_ID'),
         getenv('FB_APP_SECRET')
@@ -69,7 +83,10 @@ $injector->delegate("$services\TwitterService", function() {
         'consumer_key' => getenv('TWITTER_CONSUMER_TOKEN'),
         'consumer_secret' => getenv('TWITTER_CONSUMER_TOKEN_SECRET')
     ]);
-    return new Wheniwork\Feedback\Service\TwitterService($twitter);
+    return new Wheniwork\Feedback\Service\TwitterService(
+        $twitter,
+        getenv('TWITTER_WATCH_NAME')
+    );
 });
 
 // Boot app
