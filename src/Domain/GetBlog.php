@@ -37,14 +37,13 @@ class GetBlog extends FeedbackGetDomain
 
     protected function getFeedbackItems()
     {
-        $comments = $this->blog->getPublishedComments(50, $this->getRedisValue());
+        $comments = $this->blog->getPublishedComments($this->getRedisValue(), true);
         $feedbackComments = [];
         foreach ($comments as $comment) {
             $is_reply = $comment['parent'] != "0";
-            $from_feedback_user = in_array($comment['user_id'], $this->getFeedbackUsers());
             $tagged_feedback = $this->isTaggedFeedback($comment['content']);
 
-            if ($is_reply && $from_feedback_user && $tagged_feedback) {
+            if ($is_reply && $tagged_feedback) {
                 $feedbackComments[] = $this->blog->getComment($comment['parent']);
             }
         }
@@ -61,10 +60,5 @@ class GetBlog extends FeedbackGetDomain
         $body = $feedbackItem['content'];
         $url = $feedbackItem['link'];
         return "$body<br><br><a href=\"$url\">$url</a>";
-    }
-
-    private function getFeedbackUsers()
-    {
-        return preg_split('/\s*,\s*/', $_ENV['WP_FEEDBACK_USERS']);
     }
 }

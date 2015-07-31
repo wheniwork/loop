@@ -2,18 +2,30 @@
 namespace Wheniwork\Feedback\Domain;
 
 use RuntimeException;
+use Wheniwork\Feedback\Service\Authorizer;
+use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\HipChatService;
 
 class DoGeneric extends FeedbackDomain
 {
+    private $auth;
+
+    public function __construct(
+        HipChatService $hipchat,
+        GithubService $github,
+        Authorizer $auth
+    ) {
+        parent::__construct($hipchat, $github);
+        $this->auth = $auth;
+    }
+
     public function __invoke(array $input)
     {
         $payload = $this->getPayload();
 
         try {
-            if (empty($input['key'])) {
-                throw new RuntimeException("You must provide a key with your request.");
-            } else if ($input['key'] != $_ENV['POST_KEY']) {
-                throw new RuntimeException("The provided authentication key was invalid.");
+            if (! $this->auth->checkInput($input)) {
+                throw new RuntimeException("Unable to authenticate.");
             }
 
             if (empty($input['body'])) {

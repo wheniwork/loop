@@ -37,7 +37,7 @@ class GetAppStore extends FeedbackGetDomain
 
     protected function getFeedbackItems()
     {
-        return $this->appStore->getReviews($_ENV['WIW_IOS_APP_ID'], $this->getRedisValue());
+        return $this->appStore->getReviews($this->getRedisValue());
     }
 
     protected function getValueForRedis($feedbackItem)

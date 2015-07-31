@@ -37,7 +37,7 @@ class GetTwitter extends FeedbackGetDomain
 
     protected function getFeedbackItems()
     {
-        $tweets = $this->getTweetsSince($this->getRedisValue());
+        $tweets = $this->twitter->getTweetsSince($this->getRedisValue());
         
         $feedbackTweets = [];
         foreach ($tweets as $tweet) {
@@ -66,24 +66,5 @@ class GetTwitter extends FeedbackGetDomain
         $body = $feedbackItem->text;
         $url = $this->twitter->getTweetURL($feedbackItem);
         return "$body<br><br><a href=\"$url\">$url</a>";
-    }
-
-    private function getTweetsSince($last_id) {
-        return $this->twitter->get('https://api.twitter.com/1.1/statuses/user_timeline.json', [
-            'screen_name' => $_ENV['TWITTER_WATCH_NAME'],
-            'since_id' => $last_id
-        ]);
-    }
-
-    private function getTweet($id) {
-        return $this->twitter->get('https://api.twitter.com/1.1/statuses/show.json', [
-            'id' => $id
-        ]);
-    }
-
-    private function getTweetURL($tweet) {
-        $screen_name = $tweet->user->screen_name;
-        $id_str = $tweet->id_str;
-        return "https://twitter.com/$screen_name/status/$id_str";
     }
 }

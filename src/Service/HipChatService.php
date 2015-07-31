@@ -30,7 +30,7 @@ class HipChatService
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $_ENV['HIPCHAT_KEY'],
+            'Authorization: Bearer ' . $this->key,
             'Content-Type: application/json'
         ]);
 
