@@ -5,10 +5,18 @@ use \HieuLe\WordpressXmlrpcClient\WordpressClient;
 
 class BlogService
 {
-    private static function getClient()
+    private $client;
+    private $users;
+
+    /**
+     * Constructs a new service to get blog comments for feedback.
+     * @param WordpressClient $client The Wordpress client to use to get comments.
+     * @param array           $users  An array of user ids that can later be used to filter comments.
+     */
+    public function __construct(WordpressClient $client, array $users = array())
     {
-        $wp = new WordpressClient($_ENV['WP_ENDPOINT'], $_ENV['WP_USER'], $_ENV['WP_PASSWORD']);
-        return $wp;
+        $this->client = $client;
+        $this->users = $users;
     }
 
     /**
@@ -18,32 +26,35 @@ class BlogService
      *
      * @link https://codex.wordpress.org/XML-RPC_WordPress_API/Comments#wp.getComment
      */
-    public static function getComment($comment_id)
+    public function getComment($comment_id)
     {
-        $wp = self::getClient();
-        return $wp->getComment($comment_id);
+        return $this->client->getComment($comment_id);
     }
 
     /**
      * Get published comments (excluding pingbacks) from Wordpress. Comments
      * are sorted in chronological order, with most recent comments first.
-     * 
-     * @param int $num_comments The number of comments to retrieve.
+     *
      * @param int $after_time The timestamp after which to retrieve comments.
+     * @param bool $filter_users Whether to filter comments based on the provided array of users.
+     * @param int $num_comments The number of comments to retrieve.
      *
      * @link https://codex.wordpress.org/XML-RPC_WordPress_API/Comments#wp.getComments
      */
-    public static function getPublishedComments($num_comments = 50, $after_time = 0)
+    public function getPublishedComments($after_time = 0, $filter_users = true, $num_comments = 50)
     {
-        $wp = self::getClient();
-        $comments = $wp->getComments([
+        $comments = $this->client->getComments([
             'status' => 'approve',
             'number' => $num_comments
         ]);
-        $comments = array_filter($comments, function ($comment) use ($after_time) {
+        $comments = array_filter($comments, function ($comment) use ($after_time, $filter_users) {
             $not_pingback = $comment['type'] != 'pingback';
             $is_after = $comment['date_created_gmt']->timestamp > $after_time;
-            return $not_pingback && $is_after;
+            $from_known_user = true;
+            if ($filter_users && !in_array($comment['user_id'], $this->users)) {
+                $from_known_user = false;
+            }
+            return $not_pingback && $is_after && $from_known_user;
         });
 
         $comments = array_values($comments);

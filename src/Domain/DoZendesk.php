@@ -1,46 +1,29 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
-use RuntimeException;
-
-class DoZendesk extends FeedbackDomain
+class DoZendesk extends FeedbackPostDomain
 {
-    public function __invoke(array $input)
+    protected function getRequiredFields()
     {
-        $payload = $this->getPayload();
+        return ['body'];
+    }
 
-        try {
-            if (empty($input['key'])) {
-                throw new RuntimeException("You must provide a key with your request.");
-            } else if ($input['key'] != $_ENV['POST_KEY']) {
-                throw new RuntimeException("The provided authentication key was invalid.");
-            }
+    protected function isValid(array $input)
+    {
+        $body_content = preg_replace("/<br><br><a href.*?<\/a>/", "", $this->getFeedbackHTML($input));
+        return !empty(trim($body_content));
+    }
 
-            if (empty($input['body'])) {
-                throw new RuntimeException("Missing required field 'body'");
-            }
+    protected function getFeedbackHTML(array $input)
+    {
+        $body = $input['body'];
+        $body = preg_replace("/-{46}.*?(AM|PM)\s+/s", "", $body);
+        $body = preg_replace("/--\s+?\[.*?\].*?<a href/s", "<br><br><a href", $body);
+        return $body;
+    }
 
-            $body = $input['body'];
-            $body = preg_replace("/-{46}.*?(AM|PM)\s+/s", "", $body);
-            $body = preg_replace("/--\s+?\[.*?\].*?<a href/s", "<br><br><a href", $body);
-
-            $body_content = preg_replace("/<br><br><a href.*?<\/a>/", "", $body);
-            if (!empty(trim($body_content))) {
-                $this->createFeedback($body, "Zendesk");
-            }
-
-            $payload->setStatus($payload::SUCCESS);
-            $payload->setOutput([
-                'new_feedback' => [
-                    'body' => $body,
-                    'source' => "Zendesk"
-                ]
-            ]);
-        } catch (Exception $e) {
-            $payload->setStatus($payload::ERROR);
-            $payload->setOutput($e);
-        }
-
-        return $payload;
+    protected function getSourceName(array $input)
+    {
+        return "Zendesk";
     }
 }

@@ -1,10 +1,25 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
+use Predis\Client as RedisClient;
 use Wheniwork\Feedback\Service\AppStoreService;
+use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\HipChatService;
 
 class GetAppStore extends FeedbackGetDomain
 {
+    private $appStore;
+
+    public function __construct(
+        HipChatService $hipchat,
+        GithubService $github,
+        RedisClient $redis,
+        AppStoreService $appStore
+    ) {
+        parent::__construct($hipchat, $github, $redis);
+        $this->appStore = $appStore;
+    }
+
     protected function getRedisKey()
     {
         return "app_store_last_id";
@@ -22,7 +37,7 @@ class GetAppStore extends FeedbackGetDomain
 
     protected function getFeedbackItems()
     {
-        return AppStoreService::getReviews($_ENV['WIW_IOS_APP_ID'], $this->getRedisValue());
+        return $this->appStore->getReviews($this->getRedisValue());
     }
 
     protected function getValueForRedis($feedbackItem)

@@ -2,46 +2,36 @@
 namespace Wheniwork\Feedback\Domain;
 
 use RuntimeException;
+use Wheniwork\Feedback\Service\Authorizer;
+use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\HipChatService;
 
-class DoGeneric extends FeedbackDomain
+class DoGeneric extends FeedbackPostDomain
 {
-    public function __invoke(array $input)
+    protected function getRequiredFields()
     {
-        $payload = $this->getPayload();
+        return [
+            'body',
+            'source'
+        ];
+    }
 
-        try {
-            if (empty($input['key'])) {
-                throw new RuntimeException("You must provide a key with your request.");
-            } else if ($input['key'] != $_ENV['POST_KEY']) {
-                throw new RuntimeException("The provided authentication key was invalid.");
-            }
+    protected function getFeedbackHTML(array $input)
+    {
+        return $input['body'];
+    }
 
-            if (empty($input['body'])) {
-                throw new RuntimeException("Missing required field 'body'");
-            }
-            if (empty($input['source'])) {
-                throw new RuntimeException("Missing required field 'source'");
-            }
+    protected function getSourceName(array $input)
+    {
+        return $input['source'];
+    }
 
-            $tone = self::NEUTRAL;
-            if (!empty($input['tone'])) {
-                $tone = strtoupper($input['tone']);
-            }
-
-            $this->createFeedback($input['body'], $input['source'], $tone);
-
-            $payload->setStatus($payload::SUCCESS);
-            $payload->setOutput([
-                'new_feedback' => [
-                    'body' => $input['body'],
-                    'source' => $input['source']
-                ]
-            ]);
-        } catch (Exception $e) {
-            $payload->setStatus($payload::ERROR);
-            $payload->setOutput($e);
+    protected function getTone(array $input)
+    {
+        $tone = self::NEUTRAL;
+        if (!empty($input['tone'])) {
+            $tone = strtoupper($input['tone']);
         }
-
-        return $payload;
+        return $tone;
     }
 }
