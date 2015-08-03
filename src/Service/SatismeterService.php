@@ -2,14 +2,18 @@
 namespace Wheniwork\Feedback\Service;
 
 use DateTime;
+use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Psr7\Request;
 
 class SatismeterService
 {
+    private $httpClient;
     private $key;
     private $product_id;
 
-    public function __construct($key, $product_id)
+    public function __construct(HttpClient $httpClient, $key, $product_id)
     {
+        $this->httpClient = $httpClient;
         $this->key = $key;
         $this->product_id = $product_id;
     }
@@ -22,13 +26,15 @@ class SatismeterService
             'project' => $this->product_id
         ]);
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $endpoint . '?' . $params);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['AuthKey: ' . $this->key]);
-        $data = curl_exec($ch);
-        curl_close($ch);
+        $request = new Request(
+            "GET",
+            "$endpoint?$params",
+            [
+                "AuthKey" => $this->key
+            ]
+        );
+        $response = $this->httpClient->send($request);
+        $data = $response->getBody();
 
         return json_decode($data)->responses;
     }
