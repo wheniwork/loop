@@ -1,6 +1,7 @@
 <?php
 namespace Wheniwork\Feedback\Service;
 
+use RuntimeException;
 use Facebook\Facebook;
 
 class FacebookService
@@ -33,7 +34,7 @@ class FacebookService
 
         if ($needs_authentication) {
             if (empty($this->app_token)) {
-                throw new \RuntimeException('You must authenticate before performing this request.');
+                throw new RuntimeException('You must authenticate before performing this request.');
             }
             $this->fb->setDefaultAccessToken($this->app_token);
         }

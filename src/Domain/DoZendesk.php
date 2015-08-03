@@ -1,58 +1,29 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
-use RuntimeException;
-use Wheniwork\Feedback\Service\Authorizer;
-use Wheniwork\Feedback\Service\GithubService;
-use Wheniwork\Feedback\Service\HipChatService;
-
-class DoZendesk extends FeedbackDomain
+class DoZendesk extends FeedbackPostDomain
 {
-    private $auth;
-
-    public function __construct(
-        HipChatService $hipchat,
-        GithubService $github,
-        Authorizer $auth
-    ) {
-        parent::__construct($hipchat, $github);
-        $this->auth = $auth;
+    protected function getRequiredFields()
+    {
+        return ['body'];
     }
 
-    public function __invoke(array $input)
+    protected function isValid(array $input)
     {
-        $payload = $this->getPayload();
+        $body_content = preg_replace("/<br><br><a href.*?<\/a>/", "", $this->getFeedbackHTML($input));
+        return !empty(trim($body_content));
+    }
 
-        try {
-            if (! $this->auth->checkInput($input)) {
-                throw new RuntimeException("Unable to authenticate.");
-            }
+    protected function getFeedbackHTML(array $input)
+    {
+        $body = $input['body'];
+        $body = preg_replace("/-{46}.*?(AM|PM)\s+/s", "", $body);
+        $body = preg_replace("/--\s+?\[.*?\].*?<a href/s", "<br><br><a href", $body);
+        return $body;
+    }
 
-            if (empty($input['body'])) {
-                throw new RuntimeException("Missing required field 'body'");
-            }
-
-            $body = $input['body'];
-            $body = preg_replace("/-{46}.*?(AM|PM)\s+/s", "", $body);
-            $body = preg_replace("/--\s+?\[.*?\].*?<a href/s", "<br><br><a href", $body);
-
-            $body_content = preg_replace("/<br><br><a href.*?<\/a>/", "", $body);
-            if (!empty(trim($body_content))) {
-                $this->createFeedback($body, "Zendesk");
-            }
-
-            $payload->setStatus($payload::SUCCESS);
-            $payload->setOutput([
-                'new_feedback' => [
-                    'body' => $body,
-                    'source' => "Zendesk"
-                ]
-            ]);
-        } catch (Exception $e) {
-            $payload->setStatus($payload::ERROR);
-            $payload->setOutput($e);
-        }
-
-        return $payload;
+    protected function getSourceName(array $input)
+    {
+        return "Zendesk";
     }
 }
