@@ -1,6 +1,9 @@
 <?php
 namespace Wheniwork\Feedback\Service;
 
+use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Psr7\Request;
+
 class HipChatService
 {
     const GRAY = "gray";
@@ -10,11 +13,13 @@ class HipChatService
     const PURPLE = "purple";
     const RANDOM = "random";
 
+    private $httpClient;
     private $key;
     private $room;
 
-    public function __construct($key, $room)
+    public function __construct(HttpClient $httpClient, $key, $room)
     {
+        $this->httpClient = $httpClient;
         $this->key = $key;
         $this->room = $room;
     }
@@ -22,20 +27,18 @@ class HipChatService
     private function post($endpoint, $params)
     {
         $url = "https://api.hipchat.com/v2" . $endpoint;
-        $postfields = json_encode($params);
+        $postdata = json_encode($params);
+        $request = new Request(
+            "POST",
+            $url,
+            [
+                "Authorization" => "Bearer $this->key",
+                "Content-Type" => "application/json"
+            ],
+            $postdata
+        );
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $this->key,
-            'Content-Type: application/json'
-        ]);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
+        $response = $this->httpClient->send($request);
 
         return $response;
     }

@@ -1,12 +1,17 @@
 <?php
 namespace Wheniwork\Feedback\Service;
 
+use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Psr7\Request;
+
 class AppStoreService
 {
+    private $httpClient;
     private $app_id;
 
-    public function __construct($app_id)
+    public function __construct(HttpClient $httpClient, $app_id)
     {
+        $this->httpClient = $httpClient;
         $this->app_id = $app_id;
     }
 
@@ -14,13 +19,9 @@ class AppStoreService
     {
         $endpoint = "https://itunes.apple.com/rss/customerreviews/id=$this->app_id/sortBy=mostRecent/json";
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        $data = curl_exec($ch);
-        curl_close($ch);
+        $request = new Request("GET", $endpoint);
 
+        $data = $this->httpClient->send($request)->getBody();
         $response = json_decode($data, true)['feed'];
 
         $reviews = [];
