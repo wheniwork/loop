@@ -21,6 +21,7 @@ $app->addRoutes(function(Spark\Router $r) {
 
     $r->post('/post', "$ns\Domain\DoGeneric");
     $r->post('/zendesk', "$ns\Domain\DoZendesk");
+    $r->post('/manager', "$ns\Domain\DoManagerTool");
 });
 
 date_default_timezone_set('UTC');
