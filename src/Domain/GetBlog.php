@@ -44,7 +44,11 @@ class GetBlog extends FeedbackGetDomain
             $tagged_feedback = $this->isTaggedFeedback($comment['content']);
 
             if ($is_reply && $tagged_feedback) {
-                $feedbackComments[] = $this->blog->getComment($comment['parent']);
+                $parentComment = $this->blog->getComment($comment['parent']);
+                $isNew = $parentComment['date_created_gmt']->timestamp > $this->getRedisValue();
+                if ($isNew) {
+                    $feedbackComments[] = $parentComment;
+                }
             }
         }
         return $feedbackComments;
