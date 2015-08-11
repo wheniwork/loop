@@ -22,7 +22,7 @@ class DoManagerTool extends FeedbackDomain
             if (empty($input['account_id'])) {
                 throw new RuntimeException("Missing required field 'account_id'");
             }
-            if (empty($input['account_name'])) {
+            if (!isset($input['account_name'])) {
                 throw new RuntimeException("Missing required field 'account_name'");
             }
 
