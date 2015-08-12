@@ -5,6 +5,7 @@
     "license": "MIT",
     "require": {
         "sparkphp/spark": "v0.1.4",
+        "sparkphp/adr": "v0.1.1 as dev-master",
         "predis/predis": "^1.1@dev",
         "knplabs/github-api": "~1.4",
         "j7mbo/twitter-api-php": "~1.0",
