@@ -56,10 +56,6 @@ class GetFacebook extends FeedbackGetDomain
 
     protected function getValueForRedis($feedbackItem)
     {
-        // This apparently might need to access a different
-        // value - instead of getting the first item as usual,
-        // this endpoint used to get the *last* item in the
-        // response. Don't remember why. Test this!
         return strtotime($feedbackItem['created_time']);
     }
 

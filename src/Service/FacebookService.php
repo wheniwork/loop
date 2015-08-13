@@ -85,7 +85,7 @@ class FacebookService
             }
         }
 
-        $this->sortByDate($replies, 'created_time');
+        $this->sortByDate($replies, 'created_time', false);
 
         return $replies;
     }
