@@ -22,6 +22,8 @@ abstract class FeedbackGetDomain extends FeedbackDomain
     {
         $payload = $this->getPayload();
 
+        $debug = $this->isDebug($input);
+
         try {
             if (empty($this->getRedisValue())) {
                 $this->initRedis();
@@ -29,17 +31,19 @@ abstract class FeedbackGetDomain extends FeedbackDomain
 
             $feedbackItems = $this->getFeedbackItems();
 
-            if (count($feedbackItems) > 0) {
+            if (count($feedbackItems) > 0 && !$debug) {
                 $this->setRedisValue($this->getValueForRedis(reset($feedbackItems)));
             }
 
             $output = [$this->getOutputKeyName() => []];
             foreach ($feedbackItems as $feedbackItem) {
-                $feedback_html = $this->getFeedbackHTML($feedbackItem);
-                $source = $this->getSourceName();
-                $tone = $this->getTone($feedbackItem);
+                if (!$debug) {
+                    $feedback_html = $this->getFeedbackHTML($feedbackItem);
+                    $source = $this->getSourceName();
+                    $tone = $this->getTone($feedbackItem);
 
-                $this->createFeedback($feedback_html, $source, $tone);
+                    $this->createFeedback($feedback_html, $source, $tone);
+                }
                 array_push($output[$this->getOutputKeyName()], $feedbackItem);
             }
 

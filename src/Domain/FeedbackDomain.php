@@ -29,6 +29,11 @@ abstract class FeedbackDomain implements DomainInterface
         return new Payload();
     }
 
+    protected function isDebug(array $input)
+    {
+        return isset($input['debug']) && filter_var($input['debug'], FILTER_VALIDATE_BOOLEAN);
+    }
+
     /**
      * Checks whether the given content is tagged as feedback.
      *

@@ -23,6 +23,8 @@ abstract class FeedbackPostDomain extends FeedbackDomain
     {
         $payload = $this->getPayload();
 
+        $debug = $this->isDebug($input);
+
         try {
             $this->auth->ensure($input);
 
@@ -37,7 +39,10 @@ abstract class FeedbackPostDomain extends FeedbackDomain
             if ($this->isValid($input)) {
                 $body = $this->getFeedbackHTML($input);
                 $source = $this->getSourceName($input);
-                $this->createFeedback($body, $source);
+
+                if (!$debug) {
+                    $this->createFeedback($body, $source);
+                }
 
                 $payload->setStatus($payload::SUCCESS);
                 $payload->setOutput([
