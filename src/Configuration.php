@@ -50,6 +50,10 @@ class Configuration
             $client->authenticate($env['GITHUB_TOKEN'], "", $client::AUTH_HTTP_TOKEN);
         });
 
+        $injector->define("$services\GooglePlayStoreService", [
+            ':app_id' => $env['ANDROID_APP_ID']
+        ]);
+
         $injector->define("$services\HipChatService", [
             ':key' => $env['HIPCHAT_KEY'],
             ':room' => $env['HIPCHAT_ROOM']

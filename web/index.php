@@ -26,6 +26,7 @@ $app->addRoutes(function(Spark\Router $r) {
     $r->get('/blog', "$ns\Domain\GetBlog");
     $r->get('/satismeter', "$ns\Domain\GetSatismeter");
     $r->get('/appstore', "$ns\Domain\GetAppStore");
+    $r->get('/googleplay', "$ns\Domain\GetGooglePlayStore");
 
     $r->post('/post', "$ns\Domain\DoGeneric");
     $r->post('/zendesk', "$ns\Domain\DoZendesk");
