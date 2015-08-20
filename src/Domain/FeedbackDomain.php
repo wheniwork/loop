@@ -2,7 +2,7 @@
 namespace Wheniwork\Feedback\Domain;
 
 use Spark\Adr\DomainInterface;
-use Aura\Payload\Payload;
+use Spark\Payload;
 use Wheniwork\Feedback\Service\GithubService;
 use Wheniwork\Feedback\Service\HipChatService;
 

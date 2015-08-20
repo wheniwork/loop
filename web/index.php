@@ -17,6 +17,13 @@ $config->apply($injector, $env);
 $app = Spark\Application::boot($injector);
 $app->getRouter()->setDefaultResponder('Spark\Responder\JsonResponder');
 
+$app->setMiddleware([
+    'Relay\Middleware\ResponseSender',
+    'Spark\Handler\ExceptionHandler',
+    'Spark\Handler\RouteHandler',
+    'Spark\Handler\ActionHandler',
+]);
+
 // Add routes
 $app->addRoutes(function(Spark\Router $r) {
     $ns = 'Wheniwork\Feedback';
