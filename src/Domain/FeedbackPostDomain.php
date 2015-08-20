@@ -44,22 +44,22 @@ abstract class FeedbackPostDomain extends FeedbackDomain
                     $this->createFeedback($body, $source);
                 }
 
-                $payload->setStatus($payload::SUCCESS);
-                $payload->setOutput([
+                $payload = $payload->withStatus($payload::OK);
+                $payload = $payload->withOutput([
                     'new_feedback' => [
                         'body' => $body,
                         'source' => $source
                     ]
                 ]);
             } else {
-                $payload->setStatus($payload::NOT_VALID);
-                $payload->setOutput([
+                $payload = $payload->withStatus($payload::INVALID);
+                $payload = $payload->withOutput([
                     'error' => 'Input was not valid.'
                 ]);
             }
         } catch (Exception $e) {
-            $payload->setStatus($payload::ERROR);
-            $payload->setOutput($e);
+            $payload = $payload->withStatus($payload::ERROR);
+            $payload = $payload->withOutput($e);
         }
 
         return $payload;

@@ -47,11 +47,11 @@ abstract class FeedbackGetDomain extends FeedbackDomain
                 array_push($output[$this->getOutputKeyName()], $feedbackItem);
             }
 
-            $payload->setStatus($payload::SUCCESS);
-            $payload->setOutput($output);
+            $payload = $payload->withStatus($payload::OK);
+            $payload = $payload->withOutput($output);
         } catch (Exception $e) {
-            $payload->setStatus($payload::ERROR);
-            $payload->setOutput($e);
+            $payload = $payload->withStatus($payload::ERROR);
+            $payload = $payload->withOutput($e);
         }
         
         return $payload;
