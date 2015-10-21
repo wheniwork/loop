@@ -15,12 +15,12 @@ $config->apply($injector, $env);
 
 // Boot app
 $app = Spark\Application::boot($injector);
-$app->getRouter()->setDefaultResponder('Spark\Responder\JsonResponder');
 
 $app->setMiddleware([
     'Relay\Middleware\ResponseSender',
     'Spark\Handler\ExceptionHandler',
     'Spark\Handler\RouteHandler',
+    'Spark\Handler\ContentHandler',
     'Spark\Handler\ActionHandler',
 ]);
 

@@ -4,7 +4,7 @@
     "type": "project",
     "license": "MIT",
     "require": {
-        "sparkphp/spark": "~0.4",
+        "sparkphp/spark": "~0.6",
         "josegonzalez/dotenv": "~1.0",
         "predis/predis": "^1.1@dev",
         "knplabs/github-api": "~1.4",
