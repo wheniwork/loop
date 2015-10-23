@@ -2,11 +2,24 @@
 namespace Wheniwork\Feedback;
 
 use Auryn\Injector;
+use Negotiation\NegotiatorInterface;
+use Spark\Resolver\ResolverInterface;
 
 class Configuration
 {
     public function apply(Injector $injector, array $env)
     {
+        // --------------------
+        // Initialize responders
+        // --------------------
+        $injector->delegate("\Spark\Responder\FormattedResponder", function(NegotiatorInterface $negotiator, ResolverInterface $resolver) {
+            $responder = new \Spark\Responder\FormattedResponder($negotiator, $resolver);
+            $responder = $responder->withFormatters([
+                'Spark\Formatter\JsonFormatter' => 1.0
+            ]);
+            return $responder;
+        });
+
         // --------------------
         // Initialize services
         // --------------------
