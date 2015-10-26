@@ -24,5 +24,6 @@ For the various endpoints to work, you will need a .env file in Loop's root dire
 
 There is no official testing procedure yet, so there are a few important things to keep in mind when testing:
 
+- Using `?debug=true` on an endpoint URL will still show new feedback items in the response body, but will prevent the endpoint from actually doing anything with those feedback items. Use this to test if an endpoint is getting the correct values but you don't want to post anything to HipChat or save anything in the database.
 - Any new content will be automatically sent to the Loop room in HipChat, where the entire company can see it. Consider setting a different HipChat room key in your local .env file.
 - Any new content will also be posted to Github as an issue. Consider temporarily commenting out the line that does this.
