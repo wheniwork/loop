@@ -3,7 +3,7 @@ namespace Wheniwork\Feedback\Domain;
 
 use Spark\Adr\DomainInterface;
 use Spark\Payload;
-use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
 
 abstract class FeedbackDomain implements DomainInterface
@@ -14,14 +14,14 @@ abstract class FeedbackDomain implements DomainInterface
     const NEUTRAL = 'NEUTRAL';
 
     private $hipchat;
-    private $github;
+    private $database;
 
     public function __construct(
         HipChatService $hipchat,
-        GithubService $github
+        DatabaseService $database
     ) {
         $this->hipchat = $hipchat;
-        $this->github = $github;
+        $this->database = $database;
     }
 
     public function getPayload()
@@ -56,7 +56,7 @@ abstract class FeedbackDomain implements DomainInterface
         $color = $this->colorForTone($tone);
         $this->hipchat->postMessage("<strong>From $source:</strong> $body", $color);
 
-        $this->github->createIssue("Feedback from $source", $body);
+        $this->database->addFeedbackItem($body, $source, $tone);
     }
 
     /**

@@ -3,7 +3,7 @@ namespace Wheniwork\Feedback\Domain;
 
 use RuntimeException;
 use Wheniwork\Feedback\Service\Authorizer;
-use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
 
 abstract class FeedbackPostDomain extends FeedbackDomain
@@ -12,10 +12,10 @@ abstract class FeedbackPostDomain extends FeedbackDomain
 
     public function __construct(
         HipChatService $hipchat,
-        GithubService $github,
+        DatabaseService $database,
         Authorizer $auth
     ) {
-        parent::__construct($hipchat, $github);
+        parent::__construct($hipchat, $database);
         $this->auth = $auth;
     }
 

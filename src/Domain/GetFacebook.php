@@ -3,7 +3,7 @@ namespace Wheniwork\Feedback\Domain;
 
 use Predis\Client as RedisClient;
 use Wheniwork\Feedback\Service\FacebookService;
-use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
 
 class GetFacebook extends FeedbackGetDomain
@@ -12,11 +12,11 @@ class GetFacebook extends FeedbackGetDomain
 
     public function __construct(
         HipChatService $hipchat,
-        GithubService $github,
+        DatabaseService $database,
         RedisClient $redis,
         FacebookService $facebook
     ) {
-        parent::__construct($hipchat, $github, $redis);
+        parent::__construct($hipchat, $database, $redis);
         $this->facebook = $facebook;
     }
 

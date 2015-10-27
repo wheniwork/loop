@@ -2,8 +2,8 @@
 namespace Wheniwork\Feedback\Domain;
 
 use Predis\Client as RedisClient;
+use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
-use Wheniwork\Feedback\Service\GithubService;
 use Wheniwork\Feedback\Service\GooglePlayStoreService;
 
 class GetGooglePlayStore extends FeedbackGetDomain
@@ -12,11 +12,11 @@ class GetGooglePlayStore extends FeedbackGetDomain
 
     public function __construct(
         HipChatService $hipchat,
-        GithubService $github,
+        DatabaseService $database,
         RedisClient $redis,
         GooglePlayStoreService $store
     ) {
-        parent::__construct($hipchat, $github, $redis);
+        parent::__construct($hipchat, $database, $redis);
         $this->store = $store;
     }
 

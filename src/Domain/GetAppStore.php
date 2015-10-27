@@ -3,7 +3,7 @@ namespace Wheniwork\Feedback\Domain;
 
 use Predis\Client as RedisClient;
 use Wheniwork\Feedback\Service\AppStoreService;
-use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
 
 class GetAppStore extends FeedbackGetDomain
@@ -12,11 +12,11 @@ class GetAppStore extends FeedbackGetDomain
 
     public function __construct(
         HipChatService $hipchat,
-        GithubService $github,
+        DatabaseService $database,
         RedisClient $redis,
         AppStoreService $appStore
     ) {
-        parent::__construct($hipchat, $github, $redis);
+        parent::__construct($hipchat, $database, $redis);
         $this->appStore = $appStore;
     }
 

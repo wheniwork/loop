@@ -2,7 +2,7 @@
 
 All our user feedback in one place. Built on [Spark](https://github.com/sparkphp/Spark).
 
-Loop grabs feedback items from a variety of different sources, including Twitter, Satismeter, Zendesk, and the Manager Tool. Feedback is posted to HipChat and [saved](https://github.com/wheniwork/loop-feed/issues) in Github issues for further analysis.
+Loop grabs feedback items from a variety of different sources, including Twitter, Satismeter, Zendesk, and the Manager Tool. Feedback is posted to HipChat and saved in a MySQL database for any later analysis.
 
 ## Setting Up
 
@@ -26,4 +26,3 @@ There is no official testing procedure yet, so there are a few important things 
 
 - Using `?debug=true` on an endpoint URL will still show new feedback items in the response body, but will prevent the endpoint from actually doing anything with those feedback items. Use this to test if an endpoint is getting the correct values but you don't want to post anything to HipChat or save anything in the database.
 - Any new content will be automatically sent to the Loop room in HipChat, where the entire company can see it. Consider setting a different HipChat room key in your local .env file.
-- Any new content will also be posted to Github as an issue. Consider temporarily commenting out the line that does this.

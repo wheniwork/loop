@@ -2,7 +2,7 @@
 namespace Wheniwork\Feedback\Domain;
 
 use Predis\Client as RedisClient;
-use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
 use Wheniwork\Feedback\Service\SatismeterService;
 
@@ -12,11 +12,11 @@ class GetSatismeter extends FeedbackGetDomain
     
     public function __construct(
         HipChatService $hipchat,
-        GithubService $github,
+        DatabaseService $database,
         RedisClient $redis,
         SatismeterService $satismeter
     ) {
-        parent::__construct($hipchat, $github, $redis);
+        parent::__construct($hipchat, $database, $redis);
         $this->satismeter = $satismeter;
     }
 

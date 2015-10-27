@@ -2,8 +2,8 @@
 namespace Wheniwork\Feedback\Domain;
 
 use Predis\Client as RedisClient;
+use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
-use Wheniwork\Feedback\Service\GithubService;
 
 abstract class FeedbackGetDomain extends FeedbackDomain
 {
@@ -11,10 +11,10 @@ abstract class FeedbackGetDomain extends FeedbackDomain
     
     public function __construct(
         HipChatService $hipchat,
-        GithubService $github,
+        DatabaseService $database,
         RedisClient $redis
     ) {
-        parent::__construct($hipchat, $github);
+        parent::__construct($hipchat, $database);
         $this->redis = $redis;
     }
 

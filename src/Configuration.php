@@ -21,6 +21,18 @@ class Configuration
         });
 
         // --------------------
+        // Initialize PDO
+        // --------------------
+        $injector->define("\Aura\Sql\ExtendedPdo", [
+            ':dsn' => $env['DB_DSN'],
+            ':username' => $env['DB_USERNAME'],
+            ':password' => $env['DB_PASSWORD']
+        ]);
+        $injector->define("Aura\SqlQuery\QueryFactory", [
+            ':db' => 'mysql'
+        ]);
+
+        // --------------------
         // Initialize services
         // --------------------
         $services = "Wheniwork\Feedback\Service";
@@ -42,6 +54,10 @@ class Configuration
             ':users' => preg_split('/\s*,\s*/', $env['WP_FEEDBACK_USERS'])
         ]);
 
+        $injector->define("$services\DatabaseService", [
+            ':tableName' => $env['DB_TABLE']
+        ]);
+
         $injector->define("Facebook\Facebook", [
             ':config' => [
                 'app_id' => $env['FB_APP_ID'],
@@ -57,10 +73,6 @@ class Configuration
                 $env['FB_APP_ID'],
                 $env['FB_APP_SECRET']
             );
-        });
-
-        $injector->prepare("\Github\Client", function($client) use ($env) {
-            $client->authenticate($env['GITHUB_TOKEN'], "", $client::AUTH_HTTP_TOKEN);
         });
 
         $injector->define("$services\GooglePlayStoreService", [

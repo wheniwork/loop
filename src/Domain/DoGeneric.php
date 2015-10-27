@@ -1,11 +1,6 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
-use RuntimeException;
-use Wheniwork\Feedback\Service\Authorizer;
-use Wheniwork\Feedback\Service\GithubService;
-use Wheniwork\Feedback\Service\HipChatService;
-
 class DoGeneric extends FeedbackPostDomain
 {
     protected function getRequiredFields()
