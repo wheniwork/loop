@@ -18,15 +18,15 @@ class DatabaseService
         $this->queryFactory = $queryFactory;
     }
 
-    public function addFeedbackItem($body, $source, $tone = FeedbackDomain::NEUTRAL) {
+    public function addFeedbackItem(FeedbackItem $feedbackItem) {
+        $json = json_encode($feedbackItem);
+
         $insert = $this->queryFactory->newInsert();
 
         $insert
             ->into($this->tableName)
             ->cols([
-                'body' => $body,
-                'source' => $source,
-                'tone' => $tone
+                'content' => $json
             ]);
 
         $sth = $this->pdo->prepare($insert->getStatement());

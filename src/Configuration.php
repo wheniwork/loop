@@ -29,7 +29,7 @@ class Configuration
             ':password' => $env['DB_PASSWORD']
         ]);
         $injector->define("Aura\SqlQuery\QueryFactory", [
-            ':db' => 'mysql'
+            ':db' => $env['DB_TYPE']
         ]);
 
         // --------------------
