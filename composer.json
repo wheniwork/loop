@@ -5,6 +5,7 @@
     "license": "MIT",
     "require": {
         "sparkphp/spark": "~0.6",
+        "sparkphp/data": "~0.3",
         "josegonzalez/dotenv": "~1.0",
         "predis/predis": "^1.1@dev",
         "j7mbo/twitter-api-php": "~1.0",
@@ -13,7 +14,8 @@
         "guzzlehttp/guzzle": "~6.0",
         "fabpot/goutte": "~3.1",
         "aura/sql": "~2.4",
-        "aura/sqlquery": "~2.5"
+        "aura/sqlquery": "~2.5",
+        "robmorgan/phinx": "~0.4"
     },
     "autoload": {
         "psr-4": {
