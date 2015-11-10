@@ -36,7 +36,7 @@ class FeedbackItem
     private function expects()
     {
         return [
-            'rating' => FeedbackItem::class;
+            'rating' => FeedbackRating::class
         ];
     }
 
