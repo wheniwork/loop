@@ -2,6 +2,7 @@
 namespace Wheniwork\Feedback\Domain;
 
 use Predis\Client as RedisClient;
+use Wheniwork\Feedback\FeedbackItem;
 use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
 
@@ -29,22 +30,19 @@ abstract class FeedbackGetDomain extends FeedbackDomain
                 $this->initRedis();
             }
 
-            $feedbackItems = $this->getFeedbackItems();
+            $rawFeedbacks = $this->getRawFeedbacks();
 
-            if (count($feedbackItems) > 0 && !$debug) {
-                $this->setRedisValue($this->getValueForRedis(reset($feedbackItems)));
+            if (count($rawFeedbacks) > 0 && !$debug) {
+                $this->setRedisValue($this->getValueForRedis(reset($rawFeedbacks)));
             }
 
             $output = [$this->getOutputKeyName() => []];
-            foreach ($feedbackItems as $feedbackItem) {
+            foreach ($rawFeedbacks as $rawFeedback) {
+                $feedbackItem = $this->createFeedbackItem($rawFeedback);
                 if (!$debug) {
-                    $feedback_html = $this->getFeedbackHTML($feedbackItem);
-                    $source = $this->getSourceName();
-                    $tone = $this->getTone($feedbackItem);
-
-                    $this->createFeedback($feedback_html, $source, $tone);
+                    $this->processFeedback($feedbackItem);
                 }
-                array_push($output[$this->getOutputKeyName()], $feedbackItem);
+                array_push($output[$this->getOutputKeyName()], $feedbackItem->toArray());
             }
 
             $payload = $payload->withStatus($payload::OK);
@@ -83,15 +81,6 @@ abstract class FeedbackGetDomain extends FeedbackDomain
     }
 
     /**
-     * Gets the name of this domain's feedback source. Used in the
-     * context of the phrase "Feedback from [source]", so keep that
-     * in mind when implementing this.
-     *
-     * @return string   The name of the feedback source.
-     */
-    abstract protected function getSourceName();
-
-    /**
      * Gets the name of the key used in a successful output.
      *
      * @return string   The name of the key.
@@ -102,13 +91,21 @@ abstract class FeedbackGetDomain extends FeedbackDomain
     }
 
     /**
-     * Gets new feedback items from this domain's source. ALL
-     * returned items should be able to be processed as new
+     * Gets raw feedback responses from the domain's source.
+     * Each of the raw feedbacks returned must be able to be
+     * passed to createFeedbackItem().
+     * 
+     * @return array    The new feedback responses.
+     */
+    abstract protected function getRawFeedbacks();
+
+    /**
+     * Creates a new FeedbackItem from an instance of raw
      * feedback.
      *
-     * @return array    The new feedback items.
+     * @return FeedbackItem     The new feedback item.
      */
-    abstract protected function getFeedbackItems();
+    abstract protected function createFeedbackItem($rawFeedback);
 
     /**
      * Initializes this domain's Redis cache to an appropriate
@@ -122,32 +119,9 @@ abstract class FeedbackGetDomain extends FeedbackDomain
     /**
      * Given a feedback item, gets the value to cache in Redis.
      *
-     * @param mixed $feedbackItem   The item to get a value from.
+     * @param FeedbackItem $feedbackItem   The item to get a value from.
      * 
      * @return int                  The property of the given item to cache in Redis.
      */
     abstract protected function getValueForRedis($feedbackItem);
-
-    /**
-     * Given a feedback item, gets the HTML-formatted message to
-     * store and to send to HipChat.
-     *
-     * @param mixed $feedbackItem   The item to get a value from.
-     *
-     * @return string               The HTML-formatted version of the feedback.
-     */
-    abstract protected function getFeedbackHTML($feedbackItem);
-
-    /**
-     * Given a feedback item, gets the tone of the feedback. By
-     * default this is neutral, but domains can override this.
-     *
-     * @param mixed $feedbackItem   The item to get a value from.
-     *
-     * @return string               The tone of the feedback.
-     */
-    protected function getTone($feedbackItem)
-    {
-        return self::NEUTRAL;
-    }
 }

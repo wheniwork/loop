@@ -37,19 +37,15 @@ abstract class FeedbackPostDomain extends FeedbackDomain
             }
 
             if ($this->isValid($input)) {
-                $body = $this->getFeedbackHTML($input);
-                $source = $this->getSourceName($input);
+                $feedbackItem = $this->createFeedbackItem($input);
 
                 if (!$debug) {
-                    $this->createFeedback($body, $source);
+                    $this->processFeedback($feedbackItem);
                 }
 
                 $payload = $payload->withStatus($payload::OK);
                 $payload = $payload->withOutput([
-                    'new_feedback' => [
-                        'body' => $body,
-                        'source' => $source
-                    ]
+                    'new_feedback' => $feedbackItem->toArray()
                 ]);
             } else {
                 $payload = $payload->withStatus($payload::INVALID);
@@ -82,26 +78,9 @@ abstract class FeedbackPostDomain extends FeedbackDomain
     }
 
     /**
-     * Gets the HTML-formatted feedback from the given input.
+     * Creates a FeedbackItem from the given input.
      * @param  array  $input The input for the domain.
-     * @return string        The HTML-formatted feedback.
+     * @return FeedbackItem  The processed feedback.
      */
-    abstract protected function getFeedbackHTML(array $input);
-
-    /**
-     * Gets the source name for this domain.
-     * @param  array  $input The input for the domain.
-     * @return string        The name of this domain's feedback source.
-     */
-    abstract protected function getSourceName(array $input);
-
-    /**
-     * Gets the tone of feedback from the given input.
-     * @param  array  $input The input for this domain.
-     * @return string        The tone of feedback.
-     */
-    protected function getTone(array $input)
-    {
-        return self::NEUTRAL;
-    }
+    abstract protected function createFeedbackItem(array $input);
 }

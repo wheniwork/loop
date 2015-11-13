@@ -3,6 +3,7 @@ namespace Wheniwork\Feedback\Service;
 
 use Aura\Sql\ExtendedPdo;
 use Aura\SqlQuery\QueryFactory;
+use Wheniwork\Feedback\FeedbackItem;
 use Wheniwork\Feedback\Domain\FeedbackDomain;
 
 class DatabaseService
@@ -19,7 +20,7 @@ class DatabaseService
     }
 
     public function addFeedbackItem(FeedbackItem $feedbackItem) {
-        $json = json_encode($feedbackItem);
+        $json = json_encode($feedbackItem->toArray());
 
         $insert = $this->queryFactory->newInsert();
 

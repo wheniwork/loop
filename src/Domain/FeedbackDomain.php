@@ -5,14 +5,10 @@ use Spark\Adr\DomainInterface;
 use Spark\Payload;
 use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
+use Wheniwork\Feedback\FeedbackItem;
 
 abstract class FeedbackDomain implements DomainInterface
 {
-    const POSITIVE = 'POSITIVE';
-    const PASSIVE = 'PASSIVE';
-    const NEGATIVE = 'NEGATIVE';
-    const NEUTRAL = 'NEUTRAL';
-
     private $hipchat;
     private $database;
 
@@ -45,18 +41,15 @@ abstract class FeedbackDomain implements DomainInterface
     }
 
     /**
-     * Creates a new feedback item, posts it to HipChat, and saves it.
+     * Posts a feedback item to HipChat, and saves it to the database.
      *
-     * @param string $body      The content of the feedback item.
-     * @param string $source    The name of the feedback item's source.
-     * @param string $tone      The "tone" of the feedback, i.e. positive, passive, negative, or neutral.
+     * @param FeedbackItem $feedbackItem    The item to process.
      */
-    protected function createFeedback($body, $source, $tone = self::NEUTRAL)
-    {
-        $color = $this->colorForTone($tone);
-        $this->hipchat->postMessage("<strong>From $source:</strong> $body", $color);
+    protected function processFeedback(FeedbackItem $feedbackItem) {
+        $color = $this->colorForTone($feedbackItem->tone);
+        $this->hipchat->postMessage("<strong>From $feedbackItem->source:</strong> $feedbackItem->body", $color);
 
-        $this->database->addFeedbackItem($body, $source, $tone);
+        $this->database->addFeedbackItem($feedbackItem);
     }
 
     /**
@@ -66,11 +59,11 @@ abstract class FeedbackDomain implements DomainInterface
      */
     private function colorForTone($tone) {
         switch ($tone) {
-            case self::POSITIVE:
+            case FeedbackItem::POSITIVE:
                 return HipChatService::GREEN;
-            case self::PASSIVE:
+            case FeedbackItem::PASSIVE:
                 return HipChatService::YELLOW;
-            case self::NEGATIVE:
+            case FeedbackItem::NEGATIVE:
                 return HipChatService::RED;
             default:
                 return HipChatService::GRAY;

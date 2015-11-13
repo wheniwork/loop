@@ -1,13 +1,20 @@
 <?php
 namespace Wheniwork\Feedback;
 
-class FeedbackRating
+use Spark\Data\ArraySerializableInterface;
+
+class FeedbackRating implements ArraySerializableInterface
 {
     private $rating;
-    private $maxRating;
+    private $max_rating;
 
-    public function __construct($rating, $maxRating) {
+    public function __construct($rating, $max_rating) {
         $this->rating = $rating;
-        $this->maxRating = $maxRating;
+        $this->max_rating = $max_rating;
+    }
+
+    public function toArray()
+    {
+        return get_object_vars($this);
     }
 }
