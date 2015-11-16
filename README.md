@@ -2,7 +2,7 @@
 
 All our user feedback in one place. Built on [Spark](https://github.com/sparkphp/Spark).
 
-Loop grabs feedback items from a variety of different sources, including Twitter, Satismeter, Zendesk, and the Manager Tool. Feedback is posted to HipChat and saved in a MySQL database for any later analysis.
+Loop grabs feedback items from a variety of different sources, including Twitter, Satismeter, Zendesk, and the Manager Tool. Feedback is posted to HipChat and saved in a database for any later analysis.
 
 ## Setting Up
 
