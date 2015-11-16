@@ -13,6 +13,11 @@ class FeedbackRating implements ArraySerializableInterface
         $this->max_rating = $max_rating;
     }
 
+    public function __get($key)
+    {
+        return $this->$key;
+    }
+
     public function toArray()
     {
         return get_object_vars($this);

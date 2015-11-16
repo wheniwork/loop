@@ -3,6 +3,8 @@ namespace Wheniwork\Feedback\Service;
 
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Psr7\Request;
+use Wheniwork\Feedback\FeedbackItem;
+use Wheniwork\Feedback\Formatter\HipChatFormatter;
 
 class HipChatService
 {
@@ -16,12 +18,14 @@ class HipChatService
     private $httpClient;
     private $key;
     private $room;
+    private $formatter;
 
-    public function __construct(HttpClient $httpClient, $key, $room)
+    public function __construct(HttpClient $httpClient, $key, $room, HipChatFormatter $formatter)
     {
         $this->httpClient = $httpClient;
         $this->key = $key;
         $this->room = $room;
+        $this->formatter = $formatter;
     }
 
     private function post($endpoint, $params)
@@ -50,5 +54,12 @@ class HipChatService
             'color' => $color,
             'notify' => true
         ]);
+    }
+
+    public function postFeedback(FeedbackItem $feedbackItem)
+    {
+        $content = $this->formatter->format($feedbackItem);
+        $color = $this->formatter->getColor($feedbackItem);
+        $this->postMessage($content, $color);
     }
 }
