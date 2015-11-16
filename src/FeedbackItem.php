@@ -6,9 +6,7 @@ use Spark\Data\Traits\EntityTrait;
 
 class FeedbackItem
 {
-    use EntityTrait {
-        apply as private applyData;
-    }
+    use EntityTrait;
 
     const POSITIVE = 'positive';
     const PASSIVE = 'passive';
@@ -17,6 +15,7 @@ class FeedbackItem
 
     private $body;
     private $source;
+    private $link;
     private $title;
     private $rating;
     private $sender;
@@ -27,6 +26,7 @@ class FeedbackItem
         return [
             'body' => 'string',
             'source' => 'string',
+            'link' => 'string',
             'title' => 'string',
             'sender' => 'string',
             'tone' => 'string'
@@ -40,12 +40,13 @@ class FeedbackItem
         ];
     }
 
-    private function apply(array $data)
+    private function validate()
     {
-        if (!$this->body && empty($data['body'])) {
-            throw new Spark\DomainException('All feedback items must have a body');
+        if (!$this->body) {
+            throw new \DomainException('All feedback items must have a body');
         }
-        
-        return $this->applyData($data);
+        if ($this->link && !filter_var($this->link, FILTER_VALIDATE_URL)) {
+            throw new \DomainException('\'link\' must be a valid URL'); 
+        }
     }
 }
