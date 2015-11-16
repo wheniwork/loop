@@ -25,17 +25,12 @@ class GetBlog extends FeedbackGetDomain
         return "wp_last_time";
     }
 
-    protected function getSourceName()
-    {
-        return "the blog";
-    }
-
     protected function getOutputKeyName()
     {
         return "new_comments";
     }
 
-    protected function getFeedbackItems()
+    protected function getRawFeedbacks()
     {
         $comments = $this->blog->getPublishedComments($this->getRedisValue(), true);
         $feedbackComments = [];
@@ -59,10 +54,12 @@ class GetBlog extends FeedbackGetDomain
         return $feedbackItem['date_created_gmt']->timestamp;
     }
 
-    protected function getFeedbackHTML($feedbackItem)
+    protected function createFeedbackItem($rawFeedback)
     {
-        $body = $feedbackItem['content'];
-        $url = $feedbackItem['link'];
-        return "$body<br><br><a href=\"$url\">$url</a>";
+        return (new FeedbackItem)->withData([
+            'body' => $rawFeedback['content'],
+            'link' => $rawFeedback['link'],
+            'source' => "the blog"
+        ]);
     }
 }

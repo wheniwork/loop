@@ -2,6 +2,8 @@
 namespace Wheniwork\Feedback\Domain;
 
 use Predis\Client as RedisClient;
+use Wheniwork\Feedback\FeedbackItem;
+use Wheniwork\Feedback\FeedbackRating;
 use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
 use Wheniwork\Feedback\Service\GooglePlayStoreService;
@@ -24,16 +26,12 @@ class GetGooglePlayStore extends FeedbackGetDomain
         return "google-play-last";
     }
 
-    protected function getSourceName() {
-        return "the Google Play Store";
-    }
-
     protected function getOutputKeyName()
     {
         return "new_reviews";
     }
 
-    protected function getFeedbackItems()
+    protected function getRawFeedbacks()
     {
         return $this->store->getReviews($this->getRedisValue());
     }
@@ -43,25 +41,28 @@ class GetGooglePlayStore extends FeedbackGetDomain
         return $feedbackItem['timestamp'];
     }
 
-    protected function getFeedbackHTML($feedbackItem)
+    protected function createFeedbackItem($rawFeedback)
     {
-        $title = $feedbackItem['title'];
-        $rating = $feedbackItem['rating'];
-        $body = $feedbackItem['body'];
-        return "<strong>$title ($rating/5)</strong><br>$body";
+        return (new FeedbackItem)->withData([
+            'body' => $rawFeedback['body'],
+            'source' => "the Google Play Store",
+            'title' => $rawFeedback['title'],
+            'rating' => new FeedbackRating($rawFeedback['rating'], 5),
+            'tone' => $this->getTone($rawFeedback)
+        ]);
     }
 
-    protected function getTone($feedbackItem)
+    protected function getTone($rawFeedback)
     {
-        $score = $feedbackItem['rating'];
+        $score = $rawFeedback['rating'];
 
-        $tone = self::NEUTRAL;
+        $tone = FeedbackItem::NEUTRAL;
         if ($score >= 4) {
-            $tone = self::POSITIVE;
+            $tone = FeedbackItem::POSITIVE;
         } else if ($score == 3) {
-            $tone = self::PASSIVE;
+            $tone = FeedbackItem::PASSIVE;
         } else if ($score <= 2) {
-            $tone = self::NEGATIVE;
+            $tone = FeedbackItem::NEGATIVE;
         }
         return $tone;
     }
