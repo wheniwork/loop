@@ -32,8 +32,8 @@ abstract class FeedbackGetDomain extends FeedbackDomain
 
             $rawFeedbacks = $this->getRawFeedbacks();
 
-            if (count($rawFeedbacks) > 0 && !$debug) {
-                $this->setRedisValue($this->getValueForRedis(reset($rawFeedbacks)));
+            if ($rawFeedbacks && !$debug) {
+                $this->setRedisValue($this->getValueForRedis(current($rawFeedbacks)));
             }
 
             $output = [$this->getOutputKeyName() => []];
