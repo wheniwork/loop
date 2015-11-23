@@ -1,6 +1,8 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
+use Wheniwork\Feedback\FeedbackItem;
+
 class DoZendesk extends FeedbackPostDomain
 {
     protected function getRequiredFields()
@@ -8,7 +10,7 @@ class DoZendesk extends FeedbackPostDomain
         return ['body', 'link'];
     }
 
-    protected function getFeedbackHTML(array $input)
+    protected function createFeedbackItem(array $input)
     {
         $body = $input['body'];
         $body = preg_replace("/-{46}.*?(AM|PM)\s+/s", "", $body);
@@ -19,11 +21,10 @@ class DoZendesk extends FeedbackPostDomain
 
         $link = "https://" . $input['link'];
 
-        return "$body<br><br><a href=\"$link\">$link</a>";
-    }
-
-    protected function getSourceName(array $input)
-    {
-        return "Zendesk";
+        return (new FeedbackItem)->withData([
+            'body' => $body,
+            'source' => "Zendesk",
+            'link' => $link
+        ]);
     }
 }

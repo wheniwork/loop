@@ -3,7 +3,7 @@ namespace Wheniwork\Feedback\Domain;
 
 use Predis\Client as RedisClient;
 use Wheniwork\Feedback\Service\BlogService;
-use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
 
 class GetBlog extends FeedbackGetDomain
@@ -12,11 +12,11 @@ class GetBlog extends FeedbackGetDomain
 
     public function __construct(
         HipChatService $hipchat,
-        GithubService $github,
+        DatabaseService $database,
         RedisClient $redis,
         BlogService $blog
     ) {
-        parent::__construct($hipchat, $github, $redis);
+        parent::__construct($hipchat, $database, $redis);
         $this->blog = $blog;
     }
 
@@ -25,17 +25,12 @@ class GetBlog extends FeedbackGetDomain
         return "wp_last_time";
     }
 
-    protected function getSourceName()
-    {
-        return "the blog";
-    }
-
     protected function getOutputKeyName()
     {
         return "new_comments";
     }
 
-    protected function getFeedbackItems()
+    protected function getRawFeedbacks()
     {
         $comments = $this->blog->getPublishedComments($this->getRedisValue(), true);
         $feedbackComments = [];
@@ -59,10 +54,12 @@ class GetBlog extends FeedbackGetDomain
         return $feedbackItem['date_created_gmt']->timestamp;
     }
 
-    protected function getFeedbackHTML($feedbackItem)
+    protected function createFeedbackItem($rawFeedback)
     {
-        $body = $feedbackItem['content'];
-        $url = $feedbackItem['link'];
-        return "$body<br><br><a href=\"$url\">$url</a>";
+        return (new FeedbackItem)->withData([
+            'body' => $rawFeedback['content'],
+            'link' => $rawFeedback['link'],
+            'source' => "the blog"
+        ]);
     }
 }

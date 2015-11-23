@@ -2,8 +2,9 @@
 namespace Wheniwork\Feedback\Domain;
 
 use Predis\Client as RedisClient;
+use Wheniwork\Feedback\FeedbackItem;
 use Wheniwork\Feedback\Service\FacebookService;
-use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
 
 class GetFacebook extends FeedbackGetDomain
@@ -12,11 +13,11 @@ class GetFacebook extends FeedbackGetDomain
 
     public function __construct(
         HipChatService $hipchat,
-        GithubService $github,
+        DatabaseService $database,
         RedisClient $redis,
         FacebookService $facebook
     ) {
-        parent::__construct($hipchat, $github, $redis);
+        parent::__construct($hipchat, $database, $redis);
         $this->facebook = $facebook;
     }
 
@@ -25,17 +26,12 @@ class GetFacebook extends FeedbackGetDomain
         return "fb_last_time";
     }
 
-    protected function getSourceName()
-    {
-        return "Facebook";
-    }
-
     protected function getOutputKeyName()
     {
         return "new_comments";
     }
 
-    protected function getFeedbackItems()
+    protected function getRawFeedbacks()
     {
         $replies = $this->facebook->getReplyComments($this->getRedisValue());
         $replies = array_filter($replies, function($item) {
@@ -59,10 +55,12 @@ class GetFacebook extends FeedbackGetDomain
         return strtotime($feedbackItem['created_time']);
     }
 
-    protected function getFeedbackHTML($feedbackItem)
+    protected function createFeedbackItem($rawFeedback)
     {
-        $body = $feedbackItem['message'];
-        return "$body";
+        return (new FeedbackItem)->withData([
+            'body' => $feedbackItem['message'],
+            'source' => "Facebook"
+        ]);
     }
 
     private function isFeedbackComment($comment)

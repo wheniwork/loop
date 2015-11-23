@@ -2,7 +2,9 @@
 namespace Wheniwork\Feedback\Domain;
 
 use Predis\Client as RedisClient;
-use Wheniwork\Feedback\Service\GithubService;
+use Wheniwork\Feedback\FeedbackItem;
+use Wheniwork\Feedback\FeedbackRating;
+use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
 use Wheniwork\Feedback\Service\SatismeterService;
 
@@ -12,11 +14,11 @@ class GetSatismeter extends FeedbackGetDomain
     
     public function __construct(
         HipChatService $hipchat,
-        GithubService $github,
+        DatabaseService $database,
         RedisClient $redis,
         SatismeterService $satismeter
     ) {
-        parent::__construct($hipchat, $github, $redis);
+        parent::__construct($hipchat, $database, $redis);
         $this->satismeter = $satismeter;
     }
 
@@ -25,29 +27,36 @@ class GetSatismeter extends FeedbackGetDomain
         return "satismeter_last_time";
     }
 
-    protected function getSourceName()
-    {
-        return "Satismeter";
-    }
-
     protected function getOutputKeyName()
     {
         return "new_responses";
     }
 
-    protected function getFeedbackItems()
+    protected function getRawFeedbacks()
     {
+        $rawFeedbacks = [];
+
         $responses = $this->satismeter->getResponses($this->getRedisValue());
-        $feedbackResponses = [];
         foreach ($responses as $response) {
             if (empty($response->feedback)) {
                 continue;
             }
 
-            $feedbackResponses[] = $response;
+            $rawFeedbacks[] = $response;
         }
 
-        return $feedbackResponses;
+        return $rawFeedbacks;
+    }
+
+    protected function createFeedbackItem($rawFeedback)
+    {
+        return (new FeedbackItem)->withData([
+            'body' => $rawFeedback->feedback,
+            'source' => "Satismeter",
+            'rating' => new FeedbackRating($rawFeedback->rating, 10),
+            'sender' => $rawFeedback->user->email,
+            'tone' => $this->getTone($rawFeedback)
+        ]);
     }
 
     protected function initRedis()
@@ -56,30 +65,22 @@ class GetSatismeter extends FeedbackGetDomain
         $this->setRedisValue($startOfDay);
     }
 
-    protected function getValueForRedis($feedbackItem)
+    protected function getValueForRedis($response)
     {
-        return strtotime($feedbackItem->created) + 1;
+        return strtotime($response->created) + 1;
     }
 
-    protected function getFeedbackHTML($feedbackItem)
+    protected function getTone($rawFeedback)
     {
-        $score = $feedbackItem->rating;
-        $body = $feedbackItem->feedback;
-        $email = $feedbackItem->user->email;
-        return "<strong>$score/10.</strong> $body <i>(From $email)</i>";
-    }
+        $score = $rawFeedback->rating;
 
-    protected function getTone($feedbackItem)
-    {
-        $score = $feedbackItem->rating;
-
-        $tone = self::NEUTRAL;
-        if ($feedbackItem->category == "promoter") {
-            $tone = self::POSITIVE;
-        } else if ($feedbackItem->category == "passive") {
-            $tone = self::PASSIVE;
-        } else if ($feedbackItem->category == "detractor") {
-            $tone = self::NEGATIVE;
+        $tone = FeedbackItem::NEUTRAL;
+        if ($rawFeedback->category == "promoter") {
+            $tone = FeedbackItem::POSITIVE;
+        } else if ($rawFeedback->category == "passive") {
+            $tone = FeedbackItem::PASSIVE;
+        } else if ($rawFeedback->category == "detractor") {
+            $tone = FeedbackItem::NEGATIVE;
         }
 
         return $tone;

@@ -27,7 +27,7 @@ class TwitterService
         );
 
         if (!empty($result->errors)) {
-            $error = reset($result->errors);
+            $error = current($result->errors);
             throw new RuntimeException($error->message, $error->code);
         }
 

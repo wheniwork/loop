@@ -1,27 +1,24 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
-use Spark\Adr\DomainInterface;
 use Spark\Payload;
-use Wheniwork\Feedback\Service\GithubService;
+use Spark\Adr\DomainInterface;
+use Wheniwork\Feedback\FeedbackItem;
+use Wheniwork\Feedback\Formatter\HipChatFormatter;
+use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
 
 abstract class FeedbackDomain implements DomainInterface
 {
-    const POSITIVE = 'POSITIVE';
-    const PASSIVE = 'PASSIVE';
-    const NEGATIVE = 'NEGATIVE';
-    const NEUTRAL = 'NEUTRAL';
-
     private $hipchat;
-    private $github;
+    private $database;
 
     public function __construct(
         HipChatService $hipchat,
-        GithubService $github
+        DatabaseService $database
     ) {
         $this->hipchat = $hipchat;
-        $this->github = $github;
+        $this->database = $database;
     }
 
     public function getPayload()
@@ -45,35 +42,12 @@ abstract class FeedbackDomain implements DomainInterface
     }
 
     /**
-     * Creates a new feedback item, posts it to HipChat, and saves it.
+     * Posts a feedback item to HipChat, and saves it to the database.
      *
-     * @param string $body      The content of the feedback item.
-     * @param string $source    The name of the feedback item's source.
-     * @param string $tone      The "tone" of the feedback, i.e. positive, passive, negative, or neutral.
+     * @param FeedbackItem $feedbackItem    The item to process.
      */
-    protected function createFeedback($body, $source, $tone = self::NEUTRAL)
-    {
-        $color = $this->colorForTone($tone);
-        $this->hipchat->postMessage("<strong>From $source:</strong> $body", $color);
-
-        $this->github->createIssue("Feedback from $source", $body);
-    }
-
-    /**
-     * Gets the HipChat color for a given feedback tone.
-     *
-     * @param string $tone  The tone of the feedback.
-     */
-    private function colorForTone($tone) {
-        switch ($tone) {
-            case self::POSITIVE:
-                return HipChatService::GREEN;
-            case self::PASSIVE:
-                return HipChatService::YELLOW;
-            case self::NEGATIVE:
-                return HipChatService::RED;
-            default:
-                return HipChatService::GRAY;
-        }
+    protected function processFeedback(FeedbackItem $feedbackItem) {
+        $this->hipchat->postFeedback($feedbackItem);
+        $this->database->addFeedbackItem($feedbackItem);
     }
 }
