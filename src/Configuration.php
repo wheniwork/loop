@@ -4,6 +4,7 @@ namespace Wheniwork\Feedback;
 use Auryn\Injector;
 use Equip\Configuration\ConfigurationInterface;
 use Equip\Env;
+use Wheniwork\Feedback\Service;
 
 class Configuration implements ConfigurationInterface
 {
@@ -16,85 +17,73 @@ class Configuration implements ConfigurationInterface
     public function apply(Injector $injector)
     {
         // --------------------
-        // Initialize responders
-        // --------------------
-        $injector->prepare("Equip\Responder\FormattedResponder", function($responder, $injector) {
-            $responder = $responder->withData([
-                'Equip\Formatter\JsonFormatter' => 1.0
-            ]);
-            return $responder;
-        });
-
-        // --------------------
         // Initialize PDO
         // --------------------
-        $injector->define("Aura\Sql\ExtendedPdo", [
+        $injector->define(\Aura\Sql\ExtendedPdo::class, [
             ':dsn' => $this->env['DB_DSN'],
             ':username' => $this->env['DB_USERNAME'],
             ':password' => $this->env['DB_PASSWORD']
         ]);
-        $injector->define("Aura\SqlQuery\QueryFactory", [
+        $injector->define(\Aura\SqlQuery\QueryFactory::class, [
             ':db' => $this->env['DB_TYPE']
         ]);
 
         // --------------------
         // Initialize services
         // --------------------
-        $services = "Wheniwork\Feedback\Service";
-
-        $injector->define("$services\Authorizer", [
+        $injector->define(Service\Authorizer::class, [
             ':key' => $this->env['POST_KEY']
         ]);
 
-        $injector->define("$services\AppStoreService", [
+        $injector->define(Service\AppStoreService::class, [
             ':app_id' => $this->env['WIW_IOS_APP_ID']
         ]);
 
-        $injector->define("HieuLe\WordpressXmlrpcClient\WordpressClient", [
-            ':xmlrpcEndPoint' => "http://wheniwork.com/blog/xmlrpc.php",
+        $injector->define(\HieuLe\WordpressXmlrpcClient\WordpressClient::class, [
+            ':xmlrpcEndPoint' => 'http://wheniwork.com/blog/xmlrpc.php',
             ':username' => $this->env['WP_USER'],
             ':password' => $this->env['WP_PASSWORD']
         ]);
-        $injector->define("$services\BlogService", [
+        $injector->define(Service\BlogService::class, [
             ':users' => preg_split('/\s*,\s*/', $this->env['WP_FEEDBACK_USERS'])
         ]);
 
-        $injector->define("$services\DatabaseService", [
+        $injector->define(Service\DatabaseService::class, [
             ':tableName' => $this->env['DB_TABLE']
         ]);
 
-        $injector->define("Facebook\Facebook", [
+        $injector->define(\Facebook\Facebook::class, [
             ':config' => [
                 'app_id' => $this->env['FB_APP_ID'],
                 'app_secret' => $this->env['FB_APP_SECRET'],
                 'default_graph_version' => 'v2.4'
             ]
         ]);
-        $injector->define("$services\FacebookService", [
+        $injector->define(Service\FacebookService::class, [
             ':page_id' => $this->env['FB_PAGE_ID']
         ]);
-        $injector->prepare("$services\FacebookService", function($service) {
+        $injector->prepare(Service\FacebookService::class, function($service) {
             $service->authenticate(
                 $this->env['FB_APP_ID'],
                 $this->env['FB_APP_SECRET']
             );
         });
 
-        $injector->define("$services\GooglePlayStoreService", [
+        $injector->define(Service\GooglePlayStoreService::class, [
             ':app_id' => $this->env['ANDROID_APP_ID']
         ]);
 
-        $injector->define("$services\HipChatService", [
+        $injector->define(Service\HipChatService::class, [
             ':key' => $this->env['HIPCHAT_KEY'],
             ':room' => $this->env['HIPCHAT_ROOM']
         ]);
 
-        $injector->define("$services\SatismeterService", [
+        $injector->define(Service\SatismeterService::class, [
             ':key' => $this->env['SATISMETER_KEY'],
             ':product_id' => $this->env['SATISMETER_PRODUCT_ID']
         ]);
 
-        $injector->define("TwitterAPIExchange", [
+        $injector->define(\TwitterAPIExchange::class, [
             ':settings' => [
                 'oauth_access_token' => $this->env['TWITTER_OAUTH_TOKEN'],
                 'oauth_access_token_secret' => $this->env['TWITTER_OAUTH_TOKEN_SECRET'],
@@ -102,7 +91,7 @@ class Configuration implements ConfigurationInterface
                 'consumer_secret' => $this->env['TWITTER_CONSUMER_TOKEN_SECRET']
             ]
         ]);
-        $injector->define("$services\TwitterService", [
+        $injector->define(Service\TwitterService::class, [
             ':screen_name' => $this->env['TWITTER_WATCH_NAME']
         ]);
     }    
