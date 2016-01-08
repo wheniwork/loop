@@ -1,8 +1,8 @@
 <?php
 namespace Wheniwork\Feedback;
 
-use Spark\Data\ArraySerializableInterface;
-use Spark\Data\Traits\ImmutableValueObjectTrait;
+use Equip\Data\ArraySerializableInterface;
+use Equip\Data\Traits\ImmutableValueObjectTrait;
 
 class FeedbackRating implements ArraySerializableInterface
 {

@@ -1,8 +1,8 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
-use Spark\Payload;
-use Spark\Adr\DomainInterface;
+use Equip\Payload;
+use Equip\Adr\DomainInterface;
 use Wheniwork\Feedback\FeedbackItem;
 use Wheniwork\Feedback\Formatter\HipChatFormatter;
 use Wheniwork\Feedback\Service\DatabaseService;

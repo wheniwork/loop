@@ -1,45 +1,42 @@
 <?php
 
-define('APP_PATH', realpath(__DIR__ . '/..') . DIRECTORY_SEPARATOR);
+require __DIR__ . '/../vendor/autoload.php';
 
-require APP_PATH . 'vendor/autoload.php';
-
-// Load .env file and configure injector
-$loader = new josegonzalez\Dotenv\Loader(__DIR__ . '/../.env');
-$env = $loader->parse()->toArray();
-
-$injector = new Auryn\Injector;
-
-$config = new Wheniwork\Feedback\Configuration;
-$config->apply($injector, $env);
-
-// Boot app
-$app = Spark\Application::boot($injector);
-
-$app->setMiddleware([
-    'Relay\Middleware\ResponseSender',
-    'Spark\Handler\ExceptionHandler',
-    'Spark\Handler\RouteHandler',
-    'Spark\Handler\ContentHandler',
-    'Spark\Handler\ActionHandler',
-]);
-
-// Add routes
-$app->addRoutes(function(Spark\Router $r) {
-    $ns = 'Wheniwork\Feedback';
-
-    $r->get('/twitter', "$ns\Domain\GetTwitter");
-    $r->get('/facebook', "$ns\Domain\GetFacebook");
-    $r->get('/blog', "$ns\Domain\GetBlog");
-    $r->get('/satismeter', "$ns\Domain\GetSatismeter");
-    $r->get('/appstore', "$ns\Domain\GetAppStore");
-    $r->get('/googleplay', "$ns\Domain\GetGooglePlayStore");
-
-    $r->post('/post', "$ns\Domain\DoGeneric");
-    $r->post('/zendesk', "$ns\Domain\DoZendesk");
-    $r->post('/manager', "$ns\Domain\DoManagerTool");
-});
+use Wheniwork\Feedback;
 
 date_default_timezone_set('UTC');
 
-$app->run();
+Equip\Application::build()
+->setConfiguration([
+    Equip\Configuration\AurynConfiguration::class,
+    Equip\Configuration\DiactorosConfiguration::class,
+    Equip\Configuration\PayloadConfiguration::class,
+    Equip\Configuration\RelayConfiguration::class,
+    Equip\Configuration\WhoopsConfiguration::class,
+    Equip\Configuration\EnvConfiguration::class,
+    Wheniwork\Feedback\Configuration::class,
+])
+->setMiddleware([
+    Relay\Middleware\ResponseSender::class,
+    Equip\Handler\ExceptionHandler::class,
+    Equip\Handler\DispatchHandler::class,
+    Equip\Handler\JsonContentHandler::class,
+    Equip\Handler\ActionHandler::class,
+])
+->setRouting(function (Equip\Directory $directory) {
+    return $directory
+
+    ->get('/twitter', Feedback\Domain\GetTwitter::class)
+    ->get('/facebook', Feedback\Domain\GetFacebook::class)
+    ->get('/blog', Feedback\Domain\GetBlog::class)
+    ->get('/satismeter', Feedback\Domain\GetSatismeter::class)
+    ->get('/appstore', Feedback\Domain\GetAppStore::class)
+    ->get('/googleplay', Feedback\Domain\GetGooglePlayStore::class)
+
+    ->post('/post', Feedback\Domain\DoGeneric::class)
+    ->post('/zendesk', Feedback\Domain\DoZendesk::class)
+    ->post('/manager', Feedback\Domain\DoManagerTool::class)
+
+    ;
+})
+->run();
