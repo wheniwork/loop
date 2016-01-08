@@ -1,8 +1,8 @@
 <?php
 namespace Wheniwork\Feedback;
 
-use Spark\Data\EntityInterface;
-use Spark\Data\Traits\EntityTrait;
+use Equip\Data\EntityInterface;
+use Equip\Data\Traits\EntityTrait;
 
 class FeedbackItem
 {

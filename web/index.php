@@ -6,24 +6,24 @@ use Wheniwork\Feedback;
 
 date_default_timezone_set('UTC');
 
-Spark\Application::build()
+Equip\Application::build()
 ->setConfiguration([
-    Spark\Configuration\AurynConfiguration::class,
-    Spark\Configuration\DiactorosConfiguration::class,
-    Spark\Configuration\PayloadConfiguration::class,
-    Spark\Configuration\RelayConfiguration::class,
-    Spark\Configuration\WhoopsConfiguration::class,
-    Spark\Configuration\EnvConfiguration::class,
+    Equip\Configuration\AurynConfiguration::class,
+    Equip\Configuration\DiactorosConfiguration::class,
+    Equip\Configuration\PayloadConfiguration::class,
+    Equip\Configuration\RelayConfiguration::class,
+    Equip\Configuration\WhoopsConfiguration::class,
+    Equip\Configuration\EnvConfiguration::class,
     Wheniwork\Feedback\Configuration::class,
 ])
 ->setMiddleware([
     Relay\Middleware\ResponseSender::class,
-    Spark\Handler\ExceptionHandler::class,
-    Spark\Handler\DispatchHandler::class,
-    Spark\Handler\JsonContentHandler::class,
-    Spark\Handler\ActionHandler::class,
+    Equip\Handler\ExceptionHandler::class,
+    Equip\Handler\DispatchHandler::class,
+    Equip\Handler\JsonContentHandler::class,
+    Equip\Handler\ActionHandler::class,
 ])
-->setRouting(function (Spark\Directory $directory) {
+->setRouting(function (Equip\Directory $directory) {
     return $directory
 
     ->get('/twitter', Feedback\Domain\GetTwitter::class)

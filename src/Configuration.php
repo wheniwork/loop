@@ -2,8 +2,8 @@
 namespace Wheniwork\Feedback;
 
 use Auryn\Injector;
-use Spark\Configuration\ConfigurationInterface;
-use Spark\Env;
+use Equip\Configuration\ConfigurationInterface;
+use Equip\Env;
 
 class Configuration implements ConfigurationInterface
 {
@@ -18,9 +18,9 @@ class Configuration implements ConfigurationInterface
         // --------------------
         // Initialize responders
         // --------------------
-        $injector->prepare("Spark\Responder\FormattedResponder", function($responder, $injector) {
+        $injector->prepare("Equip\Responder\FormattedResponder", function($responder, $injector) {
             $responder = $responder->withData([
-                'Spark\Formatter\JsonFormatter' => 1.0
+                'Equip\Formatter\JsonFormatter' => 1.0
             ]);
             return $responder;
         });
