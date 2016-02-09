@@ -19,7 +19,7 @@ class AppStoreService
     {
         $endpoint = "https://itunes.apple.com/rss/customerreviews/id=$this->app_id/sortBy=mostRecent/json";
 
-        $request = new Request("GET", $endpoint);
+        $request = new Request('GET', $endpoint);
 
         $data = $this->httpClient->send($request)->getBody();
         $response = json_decode($data, true)['feed'];

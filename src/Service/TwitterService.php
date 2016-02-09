@@ -19,9 +19,9 @@ class TwitterService
 
     private function get($request, array $params = [])
     {
-        $getfield = "";
+        $getfield = '';
         if (!empty($params)) {
-            $getfield = "?" . http_build_query($params);
+            $getfield = '?' . http_build_query($params);
         }
         
         $result = json_decode(

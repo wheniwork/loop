@@ -23,12 +23,12 @@ class GetTwitter extends FeedbackGetDomain
 
     protected function getRedisKey()
     {
-        return "twitter_last_id";
+        return 'twitter_last_id';
     }
 
     protected function getOutputKeyName()
     {
-        return "new_tweets";
+        return 'new_tweets';
     }
 
     protected function getRawFeedbacks()
@@ -61,7 +61,7 @@ class GetTwitter extends FeedbackGetDomain
     {
         return (new FeedbackItem)->withData([
             'body' => $rawFeedback->text,
-            'source' => "Twitter",
+            'source' => 'Twitter',
             'link' => $this->twitter->getTweetURL($rawFeedback)
         ]);
     }

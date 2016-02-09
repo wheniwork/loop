@@ -24,12 +24,12 @@ class GetGooglePlayStore extends FeedbackGetDomain
 
     protected function getRedisKey()
     {
-        return "google-play-last";
+        return 'google-play-last';
     }
 
     protected function getOutputKeyName()
     {
-        return "new_reviews";
+        return 'new_reviews';
     }
 
     protected function getRawFeedbacks()
@@ -46,7 +46,7 @@ class GetGooglePlayStore extends FeedbackGetDomain
     {
         return (new FeedbackItem)->withData([
             'body' => $rawFeedback['body'],
-            'source' => "the Google Play Store",
+            'source' => 'the Google Play Store',
             'title' => $rawFeedback['title'],
             'rating' => new FeedbackRating($rawFeedback['rating'], 5),
             'tone' => $this->getTone($rawFeedback)

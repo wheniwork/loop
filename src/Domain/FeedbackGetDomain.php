@@ -87,7 +87,7 @@ abstract class FeedbackGetDomain extends FeedbackDomain
      */
     protected function getOutputKeyName()
     {
-        return "new_feedback_items";
+        return 'new_feedback_items';
     }
 
     /**

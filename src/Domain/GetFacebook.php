@@ -23,12 +23,12 @@ class GetFacebook extends FeedbackGetDomain
 
     protected function getRedisKey()
     {
-        return "fb_last_time";
+        return 'fb_last_time';
     }
 
     protected function getOutputKeyName()
     {
-        return "new_comments";
+        return 'new_comments';
     }
 
     protected function getRawFeedbacks()
@@ -59,7 +59,7 @@ class GetFacebook extends FeedbackGetDomain
     {
         return (new FeedbackItem)->withData([
             'body' => $feedbackItem['message'],
-            'source' => "Facebook"
+            'source' => 'Facebook'
         ]);
     }
 

@@ -14,7 +14,7 @@ class HipChatFormatter
      */
     public function format(FeedbackItem $feedbackItem)
     {
-        $output = "";
+        $output = '';
 
         $neededHeader = false;
         if ($feedbackItem->source) {
@@ -32,7 +32,7 @@ class HipChatFormatter
         }
         
         if ($neededHeader) {
-            $output .= "<br>";
+            $output .= '<br>';
         }
 
         $output .= $feedbackItem->body;

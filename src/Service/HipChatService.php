@@ -8,12 +8,12 @@ use Wheniwork\Feedback\Formatter\HipChatFormatter;
 
 class HipChatService
 {
-    const GRAY = "gray";
-    const GREEN = "green";
-    const YELLOW = "yellow";
-    const RED = "red";
-    const PURPLE = "purple";
-    const RANDOM = "random";
+    const GRAY = 'gray';
+    const GREEN = 'green';
+    const YELLOW = 'yellow';
+    const RED = 'red';
+    const PURPLE = 'purple';
+    const RANDOM = 'random';
 
     private $httpClient;
     private $key;
@@ -30,14 +30,14 @@ class HipChatService
 
     private function post($endpoint, $params)
     {
-        $url = "https://api.hipchat.com/v2" . $endpoint;
+        $url = 'https://api.hipchat.com/v2' . $endpoint;
         $postdata = json_encode($params);
         $request = new Request(
-            "POST",
+            'POST',
             $url,
             [
-                "Authorization" => "Bearer $this->key",
-                "Content-Type" => "application/json"
+                'Authorization' => "Bearer $this->key",
+                'Content-Type' => 'application/json'
             ],
             $postdata
         );

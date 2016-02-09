@@ -24,12 +24,12 @@ class GetSatismeter extends FeedbackGetDomain
 
     protected function getRedisKey()
     {
-        return "satismeter_last_time";
+        return 'satismeter_last_time';
     }
 
     protected function getOutputKeyName()
     {
-        return "new_responses";
+        return 'new_responses';
     }
 
     protected function getRawFeedbacks()
@@ -52,7 +52,7 @@ class GetSatismeter extends FeedbackGetDomain
     {
         return (new FeedbackItem)->withData([
             'body' => $rawFeedback->feedback,
-            'source' => "Satismeter",
+            'source' => 'Satismeter',
             'rating' => new FeedbackRating($rawFeedback->rating, 10),
             'sender' => $rawFeedback->user->email,
             'tone' => $this->getTone($rawFeedback)
@@ -61,7 +61,7 @@ class GetSatismeter extends FeedbackGetDomain
 
     protected function initRedis()
     {
-        $startOfDay = strtotime("midnight");
+        $startOfDay = strtotime('midnight');
         $this->setRedisValue($startOfDay);
     }
 
@@ -75,11 +75,11 @@ class GetSatismeter extends FeedbackGetDomain
         $score = $rawFeedback->rating;
 
         $tone = FeedbackItem::NEUTRAL;
-        if ($rawFeedback->category == "promoter") {
+        if ($rawFeedback->category == 'promoter') {
             $tone = FeedbackItem::POSITIVE;
-        } elseif ($rawFeedback->category == "passive") {
+        } elseif ($rawFeedback->category == 'passive') {
             $tone = FeedbackItem::PASSIVE;
-        } elseif ($rawFeedback->category == "detractor") {
+        } elseif ($rawFeedback->category == 'detractor') {
             $tone = FeedbackItem::NEGATIVE;
         }
 
