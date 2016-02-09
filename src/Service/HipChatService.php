@@ -49,7 +49,7 @@ class HipChatService
 
     public function postMessage($content, $color = self::GRAY)
     {
-        $this->post("/room/$this->room/notification", [
+        return $this->post("/room/$this->room/notification", [
             'message' => $content,
             'color' => $color,
             'notify' => true
@@ -60,6 +60,6 @@ class HipChatService
     {
         $content = $this->formatter->format($feedbackItem);
         $color = $this->formatter->getColor($feedbackItem);
-        $this->postMessage($content, $color);
+        return $this->postMessage($content, $color);
     }
 }
