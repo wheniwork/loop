@@ -46,7 +46,7 @@ class FeedbackItem
             throw new \DomainException('All feedback items must have a body');
         }
         if ($this->link && !filter_var($this->link, FILTER_VALIDATE_URL)) {
-            throw new \DomainException('\'link\' must be a valid URL');
+            throw new \DomainException('`link` must be a valid URL');
         }
     }
 }
