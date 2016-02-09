@@ -22,12 +22,12 @@ class GetBlog extends FeedbackGetDomain
 
     protected function getRedisKey()
     {
-        return "wp_last_time";
+        return 'wp_last_time';
     }
 
     protected function getOutputKeyName()
     {
-        return "new_comments";
+        return 'new_comments';
     }
 
     protected function getRawFeedbacks()
@@ -35,7 +35,7 @@ class GetBlog extends FeedbackGetDomain
         $comments = $this->blog->getPublishedComments($this->getRedisValue(), true);
         $feedbackComments = [];
         foreach ($comments as $comment) {
-            $is_reply = $comment['parent'] != "0";
+            $is_reply = $comment['parent'] != '0';
             $tagged_feedback = $this->isTaggedFeedback($comment['content']);
 
             if ($is_reply && $tagged_feedback) {
@@ -59,7 +59,7 @@ class GetBlog extends FeedbackGetDomain
         return (new FeedbackItem)->withData([
             'body' => $rawFeedback['content'],
             'link' => $rawFeedback['link'],
-            'source' => "the blog"
+            'source' => 'the blog'
         ]);
     }
 }

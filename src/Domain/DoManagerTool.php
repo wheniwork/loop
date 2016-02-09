@@ -17,7 +17,7 @@ class DoManagerTool extends FeedbackPostDomain
 
         return (new FeedbackItem)->withData([
             'body' => $input['body'],
-            'source' => "the Manager Tool",
+            'source' => 'the Manager Tool',
             'sender' => "$name, #$id"
         ]);
     }

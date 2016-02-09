@@ -22,13 +22,14 @@ class GetGooglePlayStore extends FeedbackGetDomain
         $this->store = $store;
     }
 
-    protected function getRedisKey() {
-        return "google-play-last";
+    protected function getRedisKey()
+    {
+        return 'google-play-last';
     }
 
     protected function getOutputKeyName()
     {
-        return "new_reviews";
+        return 'new_reviews';
     }
 
     protected function getRawFeedbacks()
@@ -45,7 +46,7 @@ class GetGooglePlayStore extends FeedbackGetDomain
     {
         return (new FeedbackItem)->withData([
             'body' => $rawFeedback['body'],
-            'source' => "the Google Play Store",
+            'source' => 'the Google Play Store',
             'title' => $rawFeedback['title'],
             'rating' => new FeedbackRating($rawFeedback['rating'], 5),
             'tone' => $this->getTone($rawFeedback)
@@ -59,9 +60,9 @@ class GetGooglePlayStore extends FeedbackGetDomain
         $tone = FeedbackItem::NEUTRAL;
         if ($score >= 4) {
             $tone = FeedbackItem::POSITIVE;
-        } else if ($score == 3) {
+        } elseif ($score == 3) {
             $tone = FeedbackItem::PASSIVE;
-        } else if ($score <= 2) {
+        } elseif ($score <= 2) {
             $tone = FeedbackItem::NEGATIVE;
         }
         return $tone;

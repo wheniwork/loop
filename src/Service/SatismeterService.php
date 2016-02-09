@@ -20,17 +20,17 @@ class SatismeterService
 
     public function getResponses($after_time)
     {
-        $endpoint = "https://app.satismeter.com/api/responses";
+        $endpoint = 'https://app.satismeter.com/api/responses';
         $params = http_build_query([
             'startDate' => date(DateTime::ISO8601, $after_time),
             'project' => $this->product_id
         ]);
 
         $request = new Request(
-            "GET",
+            'GET',
             "$endpoint?$params",
             [
-                "AuthKey" => $this->key
+                'AuthKey' => $this->key
             ]
         );
         $response = $this->httpClient->send($request);

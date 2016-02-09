@@ -14,7 +14,7 @@ class HipChatFormatter
      */
     public function format(FeedbackItem $feedbackItem)
     {
-        $output = "";
+        $output = '';
 
         $neededHeader = false;
         if ($feedbackItem->source) {
@@ -32,7 +32,7 @@ class HipChatFormatter
         }
         
         if ($neededHeader) {
-            $output .= "<br>";
+            $output .= '<br>';
         }
 
         $output .= $feedbackItem->body;
@@ -52,7 +52,8 @@ class HipChatFormatter
      * @param  FeedbackItem $feedbackItem The feedback item to process.
      * @return string                     The appropriate HipChat color.
      */
-    public function getColor(FeedbackItem $feedbackItem) {
+    public function getColor(FeedbackItem $feedbackItem)
+    {
         $tone = $feedbackItem->tone;
         switch ($tone) {
             case FeedbackItem::POSITIVE:

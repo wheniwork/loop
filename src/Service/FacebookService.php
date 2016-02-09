@@ -26,7 +26,8 @@ class FacebookService
         $this->app_token = $response['access_token'];
     }
 
-    private function get($endpoint, $params = [], $needs_authentication = true) {
+    private function get($endpoint, $params = [], $needs_authentication = true)
+    {
         $request = $endpoint;
         if (!empty($params)) {
             $request .= '?' . http_build_query($params);
@@ -42,8 +43,9 @@ class FacebookService
         return $response->getDecodedBody();
     }
 
-    private function sortByDate(&$array, $key, $ascending = true) {
-        usort($array, function($a, $b) use ($key, $ascending) {
+    private function sortByDate(&$array, $key, $ascending = true)
+    {
+        usort($array, function ($a, $b) use ($key, $ascending) {
             $sort = strtotime($a[$key]) - strtotime($b[$key]);
             if ($ascending) {
                 return $sort;
@@ -95,7 +97,8 @@ class FacebookService
      *
      * @param int $comment_id The id of the comment whose parent should be retrieved.
      */
-    public function getCommentParent($comment_id) {
+    public function getCommentParent($comment_id)
+    {
         $results = $this->get("/$comment_id", [
             'fields' => 'parent'
         ]);
@@ -113,5 +116,5 @@ class FacebookService
     public function getPageId()
     {
         return $this->page_id;
-    }    
+    }
 }

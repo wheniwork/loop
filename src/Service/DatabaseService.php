@@ -19,7 +19,8 @@ class DatabaseService
         $this->queryFactory = $queryFactory;
     }
 
-    public function addFeedbackItem(FeedbackItem $feedbackItem) {
+    public function addFeedbackItem(FeedbackItem $feedbackItem)
+    {
         $json = json_encode($feedbackItem->toArray());
 
         $insert = $this->queryFactory->newInsert();

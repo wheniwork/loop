@@ -24,12 +24,12 @@ class GetAppStore extends FeedbackGetDomain
 
     protected function getRedisKey()
     {
-        return "app_store_last_id";
+        return 'app_store_last_id';
     }
 
     protected function getOutputKeyName()
     {
-        return "new_reviews";
+        return 'new_reviews';
     }
 
     protected function getRawFeedbacks()
@@ -42,7 +42,7 @@ class GetAppStore extends FeedbackGetDomain
         return (new FeedbackItem)->withData([
             'body' => $rawFeedback['content'],
             'title' => $rawFeedback['title'],
-            'source' => "the iTunes App Store",
+            'source' => 'the iTunes App Store',
             'rating' => new FeedbackRating($rawFeedback['rating'], 5),
             'tone' => $this->getTone($rawFeedback)
         ]);
@@ -60,9 +60,9 @@ class GetAppStore extends FeedbackGetDomain
         $tone = FeedbackItem::NEUTRAL;
         if ($score >= 4) {
             $tone = FeedbackItem::POSITIVE;
-        } else if ($score == 3) {
+        } elseif ($score == 3) {
             $tone = FeedbackItem::PASSIVE;
-        } else if ($score <= 2) {
+        } elseif ($score <= 2) {
             $tone = FeedbackItem::NEGATIVE;
         }
         return $tone;

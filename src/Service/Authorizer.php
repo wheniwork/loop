@@ -15,9 +15,9 @@ class Authorizer
     public function ensure(array $input)
     {
         if (empty($input['key'])) {
-            throw new RuntimeException("You must provide a key with your request.");
-        } else if ($input['key'] != $this->key) {
-            throw new RuntimeException("The provided authentication key was invalid.");
+            throw new RuntimeException('You must provide a key with your request.');
+        } elseif ($input['key'] != $this->key) {
+            throw new RuntimeException('The provided authentication key was invalid.');
         }
     }
 }

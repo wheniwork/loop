@@ -38,7 +38,7 @@ abstract class FeedbackDomain implements DomainInterface
      */
     protected function isTaggedFeedback($content)
     {
-        return stripos($content, '#feedback') !== FALSE;
+        return stripos($content, '#feedback') !== false;
     }
 
     /**
@@ -46,7 +46,8 @@ abstract class FeedbackDomain implements DomainInterface
      *
      * @param FeedbackItem $feedbackItem    The item to process.
      */
-    protected function processFeedback(FeedbackItem $feedbackItem) {
+    protected function processFeedback(FeedbackItem $feedbackItem)
+    {
         $this->hipchat->postFeedback($feedbackItem);
         $this->database->addFeedbackItem($feedbackItem);
     }

@@ -13,17 +13,17 @@ class DoZendesk extends FeedbackPostDomain
     protected function createFeedbackItem(array $input)
     {
         $body = $input['body'];
-        $body = preg_replace("/-{46}.*?(AM|PM)\s+/s", "", $body);
-        $body = preg_replace("/--\s+\[.*\].*/s", "", $body);
+        $body = preg_replace('/-{46}.*?(AM|PM)\s+/s', '', $body);
+        $body = preg_replace('/--\s+\[.*\].*/s', '', $body);
         if (strlen($body) > 400) {
-            $body = preg_replace("/\s+?(\S+)?$/", "", substr($body, 0, 401)) . "...";
+            $body = preg_replace('/\s+?(\S+)?$/', '', substr($body, 0, 401)) . '...';
         }
 
-        $link = "https://" . $input['link'];
+        $link = 'https://' . $input['link'];
 
         return (new FeedbackItem)->withData([
             'body' => $body,
-            'source' => "Zendesk",
+            'source' => 'Zendesk',
             'link' => $link
         ]);
     }
