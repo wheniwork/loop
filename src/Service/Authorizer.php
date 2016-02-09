@@ -16,7 +16,7 @@ class Authorizer
     {
         if (empty($input['key'])) {
             throw new RuntimeException("You must provide a key with your request.");
-        } else if ($input['key'] != $this->key) {
+        } elseif ($input['key'] != $this->key) {
             throw new RuntimeException("The provided authentication key was invalid.");
         }
     }

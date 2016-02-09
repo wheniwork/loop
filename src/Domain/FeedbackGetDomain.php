@@ -94,7 +94,7 @@ abstract class FeedbackGetDomain extends FeedbackDomain
      * Gets raw feedback responses from the domain's source.
      * Each of the raw feedbacks returned must be able to be
      * passed to createFeedbackItem().
-     * 
+     *
      * @return array    The new feedback responses.
      */
     abstract protected function getRawFeedbacks();
@@ -120,7 +120,7 @@ abstract class FeedbackGetDomain extends FeedbackDomain
      * Given a feedback item, gets the value to cache in Redis.
      *
      * @param FeedbackItem $feedbackItem   The item to get a value from.
-     * 
+     *
      * @return int                  The property of the given item to cache in Redis.
      */
     abstract protected function getValueForRedis($feedbackItem);

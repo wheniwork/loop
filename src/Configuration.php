@@ -10,7 +10,8 @@ class Configuration implements ConfigurationInterface
 {
     private $env;
 
-    public function __construct(Env $env) {
+    public function __construct(Env $env)
+    {
         $this->env = $env;
     }
 
@@ -62,7 +63,7 @@ class Configuration implements ConfigurationInterface
         $injector->define(Service\FacebookService::class, [
             ':page_id' => $this->env['FB_PAGE_ID']
         ]);
-        $injector->prepare(Service\FacebookService::class, function($service) {
+        $injector->prepare(Service\FacebookService::class, function ($service) {
             $service->authenticate(
                 $this->env['FB_APP_ID'],
                 $this->env['FB_APP_SECRET']
@@ -94,5 +95,5 @@ class Configuration implements ConfigurationInterface
         $injector->define(Service\TwitterService::class, [
             ':screen_name' => $this->env['TWITTER_WATCH_NAME']
         ]);
-    }    
+    }
 }

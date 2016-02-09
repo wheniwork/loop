@@ -34,7 +34,7 @@ class GetFacebook extends FeedbackGetDomain
     protected function getRawFeedbacks()
     {
         $replies = $this->facebook->getReplyComments($this->getRedisValue());
-        $replies = array_filter($replies, function($item) {
+        $replies = array_filter($replies, function ($item) {
             return $this->isFeedbackComment($item);
         });
 

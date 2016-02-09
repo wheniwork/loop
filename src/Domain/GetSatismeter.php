@@ -77,9 +77,9 @@ class GetSatismeter extends FeedbackGetDomain
         $tone = FeedbackItem::NEUTRAL;
         if ($rawFeedback->category == "promoter") {
             $tone = FeedbackItem::POSITIVE;
-        } else if ($rawFeedback->category == "passive") {
+        } elseif ($rawFeedback->category == "passive") {
             $tone = FeedbackItem::PASSIVE;
-        } else if ($rawFeedback->category == "detractor") {
+        } elseif ($rawFeedback->category == "detractor") {
             $tone = FeedbackItem::NEGATIVE;
         }
 

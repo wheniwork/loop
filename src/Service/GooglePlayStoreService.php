@@ -21,7 +21,7 @@ class GooglePlayStoreService
 
         $reviews = [];
 
-        $crawler->filter('.single-review')->each(function($node) use (&$reviews, $crawler, $after_time) {
+        $crawler->filter('.single-review')->each(function ($node) use (&$reviews, $crawler, $after_time) {
             $review = [];
 
             $review['date'] = $node->filter('.review-date')->text();
@@ -48,7 +48,7 @@ class GooglePlayStoreService
             $reviews[] = $review;
         });
 
-        usort($reviews, function($a, $b) {
+        usort($reviews, function ($a, $b) {
             return $b['timestamp'] - $a['timestamp'];
         });
 
