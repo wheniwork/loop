@@ -25,6 +25,11 @@
             "Wheniwork\\Feedback\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "FeedbackTests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Ben Visness",

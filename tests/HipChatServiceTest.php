@@ -2,11 +2,12 @@
 
 namespace FeedbackTests;
 
+use FeedbackTests\FeedbackTestBase;
 use GuzzleHttp\Psr7\Request;
 use Wheniwork\Feedback\Formatter\HipChatFormatter;
 use Wheniwork\Feedback\Service\HipChatService;
 
-class HipChatServiceTest extends \PHPUnit_Framework_TestCase
+class HipChatServiceTest extends FeedbackTestBase
 {
     private $service;
 
@@ -70,5 +71,14 @@ class HipChatServiceTest extends \PHPUnit_Framework_TestCase
         $this->assertContains(self::HIPCHAT_KEY, $headers['authorization'][0]);
         $this->assertSame(self::HIPCHAT_MESSAGE_CONTENT, $body['message']);
         $this->assertSame(self::HIPCHAT_MESSAGE_COLOR, $body['color']);
+    }
+
+    public function testPostFeedback()
+    {
+        $item = $this->getFeedbackItem();
+
+        $request = $this->service->postFeedback($item);
+
+        // TODO: What to actually test here?
     }
 }
