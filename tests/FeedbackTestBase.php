@@ -14,7 +14,57 @@ class FeedbackTestBase extends \PHPUnit_Framework_TestCase
     const ITEM_RATING = 5;
     const ITEM_MAX_RATING = 5;
     const ITEM_SENDER = "test_sender";
-    const ITEM_TONE = "test_tone";
+    const ITEM_TONE = FeedbackItem::NEUTRAL;
+
+    protected $domain;
+
+    protected function payloadForInput(array $input)
+    {
+        return call_user_func($this->domain, $input);
+    }
+
+    public function getMockHttpClient()
+    {
+        $mockHttpClient = $this
+            ->getMockBuilder('GuzzleHttp\Client')
+            ->getMock();
+        $mockHttpClient
+            ->method('send')
+            ->will($this->returnArgument(0));
+
+        return $mockHttpClient;
+    }
+
+    public function getMockHipChatService()
+    {
+        return $this
+            ->getMockBuilder('Wheniwork\Feedback\Service\HipChatService')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    public function getMockHipChatFormatter()
+    {
+        return $this
+            ->getMockBuilder('Wheniwork\Feedback\Formatter\HipChatFormatter')
+            ->getMock();
+    }
+
+    public function getMockDatabaseService()
+    {
+        return $this
+            ->getMockBuilder('Wheniwork\Feedback\Service\DatabaseService')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    public function getMockAuthorizer()
+    {
+        return $this
+            ->getMockBuilder('Wheniwork\Feedback\Service\Authorizer')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
 
     public function getFeedbackItem()
     {
