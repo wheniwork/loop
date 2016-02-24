@@ -1,7 +1,9 @@
 <?php
 namespace Wheniwork\Feedback\Domain;
 
-use RuntimeException;
+use Equip\Adr\PayloadInterface;
+use Wheniwork\Feedback\Exception\AuthorizationException;
+use Wheniwork\Feedback\FeedbackItem;
 use Wheniwork\Feedback\Service\Authorizer;
 use Wheniwork\Feedback\Service\DatabaseService;
 use Wheniwork\Feedback\Service\HipChatService;
@@ -21,44 +23,52 @@ abstract class FeedbackPostDomain extends FeedbackDomain
 
     public function __invoke(array $input)
     {
+        $isDebug = $this->isDebug($input);
+
         $payload = $this->getPayload();
-
-        $debug = $this->isDebug($input);
-
+        
+        // Ensure authentication
         try {
             $this->auth->ensure($input);
-
-            $missing = array_diff($this->getRequiredFields(), array_keys($input));
-            if (!empty($missing)) {
-                throw new RuntimeException(
-                    'Missing required fields: ' .
-                    implode(', ', $missing)
-                );
-            }
-
-            if ($this->isValid($input)) {
-                $feedbackItem = $this->createFeedbackItem($input);
-
-                if (!$debug) {
-                    $this->processFeedback($feedbackItem);
-                }
-
-                $payload = $payload->withStatus($payload::OK);
-                $payload = $payload->withOutput([
-                    'new_feedback' => $feedbackItem->toArray()
+        } catch (AuthorizationException $e) {
+            return $payload
+                ->withStatus(PayloadInterface::STATUS_BAD_REQUEST)
+                ->withOutput([
+                    'error' => $e->getMessage()
                 ]);
-            } else {
-                $payload = $payload->withStatus($payload::INVALID);
-                $payload = $payload->withOutput([
-                    'error' => 'Input was not valid.'
-                ]);
-            }
-        } catch (Exception $e) {
-            $payload = $payload->withStatus($payload::ERROR);
-            $payload = $payload->withOutput($e);
         }
 
-        return $payload;
+        // Check for missing fields
+        $missingFields = array_diff($this->getRequiredFields(), array_keys($input));
+        if (!empty($missingFields)) {
+            $missingMessage = 'Missing required fields: ' .
+                implode(', ', $missingFields);
+            return $payload
+                ->withStatus(PayloadInterface::STATUS_BAD_REQUEST)
+                ->withOutput([
+                    'error' => $missingMessage
+                ]);
+        }
+
+        // Check if input is valid
+        if (!$this->isValid($input)) {
+            return $payload->withStatus(PayloadInterface::STATUS_BAD_REQUEST)
+                ->withOutput([
+                    'error' => 'Input was not valid.'
+                ]);
+        }
+        
+        $feedbackItem = $this->createFeedbackItem($input);
+
+        if (!$isDebug) {
+            $this->processFeedback($feedbackItem);
+        }
+
+        return $payload
+            ->withStatus(PayloadInterface::STATUS_OK)
+            ->withOutput([
+                'new_feedback' => $feedbackItem->toArray()
+            ]);
     }
 
     /**

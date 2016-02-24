@@ -1,7 +1,7 @@
 <?php
 namespace Wheniwork\Feedback\Service;
 
-use RuntimeException;
+use Wheniwork\Feedback\Exception\AuthorizationException;
 
 class Authorizer
 {
@@ -15,9 +15,9 @@ class Authorizer
     public function ensure(array $input)
     {
         if (empty($input['key'])) {
-            throw new RuntimeException('You must provide a key with your request.');
+            throw new AuthorizationException('You must provide a key with your request.');
         } elseif ($input['key'] != $this->key) {
-            throw new RuntimeException('The provided authentication key was invalid.');
+            throw new AuthorizationException('The provided authentication key was invalid.');
         }
     }
 }
