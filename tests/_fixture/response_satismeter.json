@@ -1,0 +1,58 @@
+{
+  "responses": [
+    {
+      "rating": 5,
+      "created": "2016-02-01T12:00:00.000Z",
+      "method": "In-app",
+      "referrer": "https://app.wheniwork.com/scheduler/",
+      "project": "abc123",
+      "ip": "123.45.678.90",
+      "location": {
+        "country": "US",
+        "region": "MN",
+        "city": "St. Paul",
+        "long": "St. Paul, Minnesota, United States",
+        "short": "St. Paul"
+      },
+      "user": {
+        "userId": "1234567",
+        "traits": {
+          "createdAt": "2016-01-01T00:00:00+00:00",
+          "name": "Test User 1",
+          "email": "testuser1@example.com"
+        },
+        "email": "testuser1@example.com",
+        "name": "Test User 1"
+      },
+      "category": "detractor",
+      "id": "abcdefg1234567"
+    },
+    {
+      "rating": 10,
+      "created": "2016-02-01T20:00:00.000Z",
+      "method": "In-app",
+      "referrer": "https://app.wheniwork.com/scheduler/",
+      "project": "abc123",
+      "ip": "098.76.543.21",
+      "location": {
+        "country": "US",
+        "region": "MN",
+        "city": "Minneapolis",
+        "long": "Minneapolis, Minnesota, United States",
+        "short": "Minneapolis"
+      },
+      "user": {
+        "userId": "7654321",
+        "traits": {
+          "createdAt": "2016-01-01T00:00:00+00:00",
+          "name": "Test User 2",
+          "email": "testuser2@example.com"
+        },
+        "email": "testuser2@example.com",
+        "name": "Test User 2"
+      },
+      "category": "promoter",
+      "id": "7654321gfedcba"
+    }
+  ]
+}
