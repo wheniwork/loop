@@ -15,9 +15,24 @@ class HipChatService
     const PURPLE = 'purple';
     const RANDOM = 'random';
 
+    /**
+     * @var HttpClient
+     */
     private $httpClient;
+
+    /**
+     * @var string
+     */
     private $key;
+
+    /**
+     * @var string
+     */
     private $room;
+
+    /**
+     * @var HipChatFormatter
+     */
     private $formatter;
 
     public function __construct(HttpClient $httpClient, $key, $room, HipChatFormatter $formatter)
@@ -28,11 +43,17 @@ class HipChatService
         $this->formatter = $formatter;
     }
 
-    private function post($endpoint, $params)
+    /**
+     * @param $endpoint
+     * @param $params
+     * @return Request
+     */
+    public function getHipChatRequest($endpoint, $params)
     {
         $url = 'https://api.hipchat.com/v2' . $endpoint;
         $postdata = json_encode($params);
-        $request = new Request(
+
+        return new Request(
             'POST',
             $url,
             [
@@ -41,21 +62,32 @@ class HipChatService
             ],
             $postdata
         );
-
-        $response = $this->httpClient->send($request);
-
-        return $response;
     }
 
+    /**
+     * @param $content
+     * @param string $color
+     * @return mixed|\Psr\Http\Message\ResponseInterface
+     */
     public function postMessage($content, $color = self::GRAY)
     {
-        return $this->post("/room/$this->room/notification", [
+        $endpoint = "/room/$this->room/notification";
+        $params = [
             'message' => $content,
             'color' => $color,
             'notify' => true
-        ]);
+        ];
+        $request = $this->getHipChatRequest($endpoint, $params);
+
+        return $this->httpClient->send($request);
     }
 
+    /**
+     * Formats and posts a FeedbackItem to the service's HipChat room.
+     *
+     * @param FeedbackItem $feedbackItem
+     * @return mixed|\Psr\Http\Message\ResponseInterface
+     */
     public function postFeedback(FeedbackItem $feedbackItem)
     {
         $content = $this->formatter->format($feedbackItem);

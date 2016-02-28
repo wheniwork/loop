@@ -66,6 +66,9 @@ class FeedbackTestBase extends \PHPUnit_Framework_TestCase
             ->getMock();
     }
 
+    /**
+     * @return FeedbackItem
+     */
     public function getFeedbackItem()
     {
         return (new FeedbackItem)->withData([
